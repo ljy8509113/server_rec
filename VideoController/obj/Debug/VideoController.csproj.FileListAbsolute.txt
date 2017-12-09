@@ -28,3 +28,5 @@ C:\windowProject\server_rec\VideoController\obj\Debug\VideoController.csproj.Gen
 C:\windowProject\server_rec\VideoController\obj\Debug\VideoController.csproj.CoreCompileInputs.cache
 C:\windowProject\server_rec\VideoController\obj\Debug\VideoController.exe
 C:\windowProject\server_rec\VideoController\obj\Debug\VideoController.pdb
+C:\windowProject\server_rec\VideoController\bin\Debug\Newtonsoft.Json.dll
+C:\windowProject\server_rec\VideoController\bin\Debug\Newtonsoft.Json.xml

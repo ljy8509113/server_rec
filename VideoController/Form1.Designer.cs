@@ -36,16 +36,16 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label2 = new System.Windows.Forms.Label();
+            this.button6 = new System.Windows.Forms.Button();
+            this.textBox2 = new System.Windows.Forms.TextBox();
+            this.button5 = new System.Windows.Forms.Button();
+            this.button4 = new System.Windows.Forms.Button();
             this.listView1 = new System.Windows.Forms.ListView();
             this.label1 = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.button4 = new System.Windows.Forms.Button();
-            this.button5 = new System.Windows.Forms.Button();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.button6 = new System.Windows.Forms.Button();
-            this.label2 = new System.Windows.Forms.Label();
-            this.label3 = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -127,6 +127,71 @@
             this.tabPage1.Text = "REC";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(1057, 447);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(89, 12);
+            this.label4.TabIndex = 8;
+            this.label4.Text = "000.000.000.000";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(1012, 447);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(41, 12);
+            this.label3.TabIndex = 7;
+            this.label3.Text = "아이피";
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(1024, 479);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(29, 12);
+            this.label2.TabIndex = 6;
+            this.label2.Text = "포트";
+            // 
+            // button6
+            // 
+            this.button6.Location = new System.Drawing.Point(1144, 474);
+            this.button6.Name = "button6";
+            this.button6.Size = new System.Drawing.Size(51, 23);
+            this.button6.TabIndex = 5;
+            this.button6.Text = "설정";
+            this.button6.UseVisualStyleBackColor = true;
+            this.button6.Click += new System.EventHandler(this.button6_Click);
+            // 
+            // textBox2
+            // 
+            this.textBox2.Font = new System.Drawing.Font("굴림", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.textBox2.Location = new System.Drawing.Point(1059, 475);
+            this.textBox2.Name = "textBox2";
+            this.textBox2.Size = new System.Drawing.Size(79, 22);
+            this.textBox2.TabIndex = 4;
+            // 
+            // button5
+            // 
+            this.button5.Location = new System.Drawing.Point(1059, 69);
+            this.button5.Name = "button5";
+            this.button5.Size = new System.Drawing.Size(79, 69);
+            this.button5.TabIndex = 3;
+            this.button5.Text = "중지";
+            this.button5.UseVisualStyleBackColor = true;
+            this.button5.Click += new System.EventHandler(this.button5_Click);
+            // 
+            // button4
+            // 
+            this.button4.Location = new System.Drawing.Point(935, 69);
+            this.button4.Name = "button4";
+            this.button4.Size = new System.Drawing.Size(79, 69);
+            this.button4.TabIndex = 2;
+            this.button4.Text = "녹화";
+            this.button4.UseVisualStyleBackColor = true;
+            this.button4.Click += new System.EventHandler(this.button4_Click);
+            // 
             // listView1
             // 
             this.listView1.Font = new System.Drawing.Font("굴림", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
@@ -160,69 +225,6 @@
             this.tabPage2.Text = "VIEW";
             this.tabPage2.UseVisualStyleBackColor = true;
             this.tabPage2.Click += new System.EventHandler(this.tabPage2_Click);
-            // 
-            // button4
-            // 
-            this.button4.Location = new System.Drawing.Point(935, 69);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(79, 69);
-            this.button4.TabIndex = 2;
-            this.button4.Text = "녹화";
-            this.button4.UseVisualStyleBackColor = true;
-            // 
-            // button5
-            // 
-            this.button5.Location = new System.Drawing.Point(1059, 69);
-            this.button5.Name = "button5";
-            this.button5.Size = new System.Drawing.Size(79, 69);
-            this.button5.TabIndex = 3;
-            this.button5.Text = "중지";
-            this.button5.UseVisualStyleBackColor = true;
-            // 
-            // textBox2
-            // 
-            this.textBox2.Font = new System.Drawing.Font("굴림", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.textBox2.Location = new System.Drawing.Point(1059, 475);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(79, 22);
-            this.textBox2.TabIndex = 4;
-            // 
-            // button6
-            // 
-            this.button6.Location = new System.Drawing.Point(1144, 474);
-            this.button6.Name = "button6";
-            this.button6.Size = new System.Drawing.Size(51, 23);
-            this.button6.TabIndex = 5;
-            this.button6.Text = "설정";
-            this.button6.UseVisualStyleBackColor = true;
-            this.button6.Click += new System.EventHandler(this.button6_Click);
-            // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(1024, 479);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(29, 12);
-            this.label2.TabIndex = 6;
-            this.label2.Text = "포트";
-            // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(1012, 447);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(41, 12);
-            this.label3.TabIndex = 7;
-            this.label3.Text = "아이피";
-            // 
-            // label4
-            // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(1057, 447);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(89, 12);
-            this.label4.TabIndex = 8;
-            this.label4.Text = "000.000.000.000";
             // 
             // Form1
             // 
