@@ -7,13 +7,14 @@ using System.Net.Sockets;
 
 namespace VideoController
 {
-    class ConnectionInfo
+    public class ConnectionInfo
     {
         public Socket socket;
+        public string ip;
         public string name;
         public string uuid;
         public bool isTeacher;
-
+        
         public void setData(string name, string uuid, bool isTeacher)
         {
             this.name = name;

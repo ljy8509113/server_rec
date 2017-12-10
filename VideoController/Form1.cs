@@ -12,6 +12,7 @@ using System.Net.Sockets;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
+
 namespace VideoController
 {
     public partial class Form1 : Form
@@ -19,7 +20,7 @@ namespace VideoController
         string port = "";
         string settingPath = "./setting.txt";
         bool isOpenSocket = false;
-
+        
         public Form1()
         {
             InitializeComponent();
@@ -103,7 +104,7 @@ namespace VideoController
                 SocketManager.getInstance().onEnd();
                 Application.Restart();
             }
-            
+                                   
         }
 
         void openSocket()
@@ -116,26 +117,10 @@ namespace VideoController
         private BackgroundWorker backgroundWorker1;
         List<ConnectionInfo> _listInfo = new List<ConnectionInfo>();
 
-        public void addConnectionInfo(string name, string uuid, bool isTeacher, Socket s)
+        public void addConnectionInfo(List<ConnectionInfo> list)
         {
-            bool isAdd = true;
-            foreach(ConnectionInfo i in _listInfo)
-            {
-                if (i.uuid.Equals(uuid))
-                {
-                    isAdd = false;
-                }
-            }
-
-            if (isAdd)
-            {
-                ConnectionInfo info = new ConnectionInfo();
-                info.socket = s;
-                info.setData(name, uuid, isTeacher);
-                _listInfo.Add(info);
-                this.backgroundWorker1.RunWorkerAsync();
-            }
-            
+            _listInfo = list;
+            this.backgroundWorker1.RunWorkerAsync();
         }
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -210,6 +195,14 @@ namespace VideoController
             //중지
             JObject json = new JObject();
             json.Add("id", "stop");
+            SocketManager.getInstance().sendMessage(json.ToString(), null);
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            //영상 가져오기 
+            JObject json = new JObject();
+            json.Add("id", "file");
             SocketManager.getInstance().sendMessage(json.ToString(), null);
         }
     }
