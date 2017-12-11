@@ -11,13 +11,15 @@ using System.IO;
 using System.Net.Sockets;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Net;
 
 
 namespace VideoController
 {
     public partial class Form1 : Form
     {
-        string port = "";
+        string port = "0";
+        string ip = "";
         string settingPath = "./setting.txt";
         bool isOpenSocket = false;
         
@@ -33,7 +35,14 @@ namespace VideoController
             FileInfo protFile = new FileInfo(settingPath);
             if (protFile.Exists)
             {
-                this.port = File.ReadAllText(settingPath);
+                string settingStr = File.ReadAllText(settingPath);
+                JObject obj = JObject.Parse(settingStr);
+
+                Console.WriteLine("json : {0}", obj);
+                this.ip = obj["ip"].ToString();
+                this.port = obj["port"].ToString();
+
+                textBox3.Text = this.ip;
                 textBox2.Text = this.port;
                 openSocket();
             }
@@ -81,8 +90,19 @@ namespace VideoController
 
         private void button6_Click(object sender, EventArgs e)
         {
+            string ipAddr = textBox3.Text;
             string port = textBox2.Text;
+
+            IPAddress ip;
+            bool b = IPAddress.TryParse(ipAddr, out ip);
+
             int num = 0;
+
+            if (!b)
+            {
+                MessageBox.Show("아이피 확인이 필요합니다.");
+                return;
+            }
 
             if(!int.TryParse(port, out num))
             {
@@ -90,9 +110,14 @@ namespace VideoController
                 return;
             }
 
+            JObject json = new JObject();
+            json.Add("ip", ipAddr);
+            json.Add("port", port);
+            
             StreamWriter sw = new StreamWriter(settingPath, false);
-            sw.Write(port);
+            sw.Write(json.ToString());
             this.port = port;
+            this.ip = ipAddr;
             sw.Close();
 
             if(SocketManager.getInstance()._isOn == false)
@@ -103,15 +128,14 @@ namespace VideoController
             {
                 SocketManager.getInstance().onEnd();
                 Application.Restart();
-            }
-                                   
+            }                                   
         }
 
         void openSocket()
         {
-            SocketManager.getInstance().init(Int32.Parse(this.port));
+            SocketManager.getInstance().init(this.ip.ToString(), Int32.Parse(this.port));
             SocketManager.getInstance().f = this;
-            this.label4.Text = SocketManager.getInstance().GetLocalIP();
+            //this.label4.Text = SocketManager.getInstance().GetLocalIP();
         }
 
         private BackgroundWorker backgroundWorker1;
@@ -204,6 +228,6 @@ namespace VideoController
             JObject json = new JObject();
             json.Add("id", "file");
             SocketManager.getInstance().sendMessage(json.ToString(), null);
-        }
+        }        
     }
 }

@@ -36,7 +36,7 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
-            this.label4 = new System.Windows.Forms.Label();
+            this.button7 = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.button6 = new System.Windows.Forms.Button();
@@ -46,7 +46,7 @@
             this.listView1 = new System.Windows.Forms.ListView();
             this.label1 = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.button7 = new System.Windows.Forms.Button();
+            this.textBox3 = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -111,8 +111,8 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.textBox3);
             this.tabPage1.Controls.Add(this.button7);
-            this.tabPage1.Controls.Add(this.label4);
             this.tabPage1.Controls.Add(this.label3);
             this.tabPage1.Controls.Add(this.label2);
             this.tabPage1.Controls.Add(this.button6);
@@ -129,14 +129,15 @@
             this.tabPage1.Text = "REC";
             this.tabPage1.UseVisualStyleBackColor = true;
             // 
-            // label4
+            // button7
             // 
-            this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(1057, 447);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(89, 12);
-            this.label4.TabIndex = 8;
-            this.label4.Text = "000.000.000.000";
+            this.button7.Location = new System.Drawing.Point(935, 187);
+            this.button7.Name = "button7";
+            this.button7.Size = new System.Drawing.Size(79, 69);
+            this.button7.TabIndex = 9;
+            this.button7.Text = "영상 가져오기";
+            this.button7.UseVisualStyleBackColor = true;
+            this.button7.Click += new System.EventHandler(this.button7_Click);
             // 
             // label3
             // 
@@ -158,7 +159,7 @@
             // 
             // button6
             // 
-            this.button6.Location = new System.Drawing.Point(1144, 474);
+            this.button6.Location = new System.Drawing.Point(1197, 474);
             this.button6.Name = "button6";
             this.button6.Size = new System.Drawing.Size(51, 23);
             this.button6.TabIndex = 5;
@@ -171,7 +172,7 @@
             this.textBox2.Font = new System.Drawing.Font("굴림", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
             this.textBox2.Location = new System.Drawing.Point(1059, 475);
             this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(79, 22);
+            this.textBox2.Size = new System.Drawing.Size(132, 22);
             this.textBox2.TabIndex = 4;
             // 
             // button5
@@ -228,15 +229,13 @@
             this.tabPage2.UseVisualStyleBackColor = true;
             this.tabPage2.Click += new System.EventHandler(this.tabPage2_Click);
             // 
-            // button7
+            // textBox3
             // 
-            this.button7.Location = new System.Drawing.Point(935, 187);
-            this.button7.Name = "button7";
-            this.button7.Size = new System.Drawing.Size(79, 69);
-            this.button7.TabIndex = 9;
-            this.button7.Text = "영상 가져오기";
-            this.button7.UseVisualStyleBackColor = true;
-            this.button7.Click += new System.EventHandler(this.button7_Click);
+            this.textBox3.Font = new System.Drawing.Font("굴림", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.textBox3.Location = new System.Drawing.Point(1059, 437);
+            this.textBox3.Name = "textBox3";
+            this.textBox3.Size = new System.Drawing.Size(132, 22);
+            this.textBox3.TabIndex = 10;
             // 
             // Form1
             // 
@@ -277,9 +276,9 @@
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.Button button5;
         private System.Windows.Forms.Button button4;
-        private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button button7;
+        private System.Windows.Forms.TextBox textBox3;
     }
 }
 

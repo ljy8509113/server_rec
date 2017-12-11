@@ -29,13 +29,15 @@ namespace VideoController
         static List<ConnectionInfo> listSocket;
         public bool _isOn = false;
         public Form1 f = null;
+        string ip = "";
 
         public static byte[] getByte = new byte[1024];
         public static byte[] setByte = new byte[1024];
 
-        public void init(int port)
+        public void init(string ip, int port)
         {
             this.port = port;
+            this.ip = ip;
 
             Console.WriteLine("thread start");
             
@@ -44,7 +46,7 @@ namespace VideoController
             listSocket = new List<ConnectionInfo>();
 
             l.SocketAccepted += new Listener.SocketAcceptedHandler(l_SocketAccepted);
-            l.Start(GetLocalIP());            
+            l.Start(this.ip);            
 
             Console.ReadLine();
             _isOn = true;
