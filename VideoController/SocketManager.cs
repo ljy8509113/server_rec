@@ -8,6 +8,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Windows.Forms;
 using Newtonsoft.Json.Linq;
+using System.IO;
 
 namespace VideoController
 {
@@ -33,7 +34,7 @@ namespace VideoController
 
         public static byte[] getByte = new byte[1024];
         public static byte[] setByte = new byte[1024];
-
+        
         public void init(string ip, int port)
         {
             this.port = port;
@@ -80,43 +81,67 @@ namespace VideoController
                 {
                     int res = i.socket.Receive(getByte, 0, getByte.Length, SocketFlags.None);
                     Console.WriteLine("uuid : {0}  //  ip : {1}  //  name : {2}  //  res : {3}", i.uuid, i.ip, i.name, res);
-                    string stringbyte = Encoding.UTF8.GetString(getByte);
+                    
+                    int dataType = BitConverter.ToInt32(getByte, 0);
+                    string stringbyte11 = Encoding.UTF8.GetString(getByte, 4, getByte.Length);
 
-                    if (stringbyte != String.Empty)
+                    Console.WriteLine("t : {0}", stringbyte11);
+
+                    if (dataType == 2)
                     {
+                        //file
                         int getValueLength = 0;
                         getValueLength = byteArrayDefrag(getByte);
 
-                        stringbyte = Encoding.UTF8.GetString(getByte, 0, getValueLength + 1);
-
-                        Console.WriteLine("1. 수신데이터:{0} | 길이:{1}", stringbyte, getValueLength + 1);
-
-                        if (getValueLength + 1 > 1)
+                        string sDirPath;
+                        sDirPath = Application.StartupPath + ".\\movie\\" + i.name + "\\";
+                        DirectoryInfo di = new DirectoryInfo(sDirPath);
+                        if (di.Exists == false)
                         {
-                            JObject obj = JObject.Parse(stringbyte);
-                            Console.WriteLine("json : {0}", obj);
-                            Console.WriteLine(obj["identifier"].ToString());
-
-                            if (obj["identifier"].ToString().Equals("user_info"))
-                            {
-                                string name = obj["name"].ToString();
-                                bool isTeacher = obj["user"].ToString().Equals("T") ? true : false;
-                                string uuid = obj["device_id"].ToString();
-                                Console.WriteLine("name : " + name + "  //  isTeacher : " + isTeacher + "  //  uuid : " + uuid);
-
-                                i.setData(name, uuid, isTeacher);
-                                instance.f.addConnectionInfo(listSocket);
-
-                                JObject json = new JObject();
-                                json.Add("id", "user_info");
-                                json.Add("result", "success");
-
-                                i.socket.Send(Encoding.UTF8.GetBytes(json.ToString()));
-                            }
+                            di.Create();
                         }
-
+                        
                     }
+                    else
+                    {
+                        //string
+                        string stringbyte = Encoding.UTF8.GetString(getByte, 4, getByte.Length);
+                        if (stringbyte != String.Empty)
+                        {
+                            int getValueLength = 0;
+                            getValueLength = byteArrayDefrag(getByte);
 
+                            stringbyte = Encoding.UTF8.GetString(getByte, 0, getValueLength + 1);
+
+                            Console.WriteLine("1. 수신데이터:{0} | 길이:{1}", stringbyte, getValueLength + 1);
+
+                            if (getValueLength + 1 > 1)
+                            {
+                                JObject obj = JObject.Parse(stringbyte);
+                                Console.WriteLine("json : {0}", obj);
+                                Console.WriteLine(obj["identifier"].ToString());
+
+                                if (obj["identifier"].ToString().Equals("user_info"))
+                                {
+                                    string name = obj["name"].ToString();
+                                    bool isTeacher = obj["user"].ToString().Equals("T") ? true : false;
+                                    string uuid = obj["device_id"].ToString();
+                                    Console.WriteLine("name : " + name + "  //  isTeacher : " + isTeacher + "  //  uuid : " + uuid);
+
+                                    i.setData(name, uuid, isTeacher);
+                                    instance.f.addConnectionInfo(listSocket);
+
+                                    JObject json = new JObject();
+                                    json.Add("id", "user_info");
+                                    json.Add("result", "success");
+
+                                    i.socket.Send(Encoding.UTF8.GetBytes(json.ToString()));
+                                }
+                            }
+
+                        }
+                    }
+                    
                     getByte = new byte[1024];
                     setByte = new byte[1024];
                 }                

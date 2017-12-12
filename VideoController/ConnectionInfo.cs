@@ -14,6 +14,7 @@ namespace VideoController
         public string name;
         public string uuid;
         public bool isTeacher;
+        public bool isSendingFile = false;
         
         public void setData(string name, string uuid, bool isTeacher)
         {
