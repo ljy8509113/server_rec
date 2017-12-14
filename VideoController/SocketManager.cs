@@ -80,12 +80,7 @@ namespace VideoController
                 if (e == i.socket)
                 {
                     int res = i.socket.Receive(getByte, 0, getByte.Length, SocketFlags.None);
-                    Console.WriteLine("uuid : {0}  //  ip : {1}  //  name : {2}  //  res : {3}", i.uuid, i.ip, i.name, res);
-                    
-                    int dataType = BitConverter.ToInt32(getByte, 0);
-                    string stringbyte11 = Encoding.UTF8.GetString(getByte, 4, getByte.Length);
-
-                    Console.WriteLine("t : {0}", stringbyte11);
+                    int dataType = int.Parse(Encoding.UTF8.GetString(getByte, 0, 1));//BitConverter.ToInt32(getByte, 0);
 
                     if (dataType == 2)
                     {
@@ -100,21 +95,33 @@ namespace VideoController
                         {
                             di.Create();
                         }
-                        
+                        Console.WriteLine("file in");
+                        //int receivedBytesLen = i.socket.Receive(getByte);
+
+                        int fileNameLen = BitConverter.ToInt32(getByte, 0);
+                        string fileName = Encoding.ASCII.GetString(getByte, 4, fileNameLen);
+
+                        Console.WriteLine("Client:{0} connected & File {1} started received.", i.socket.RemoteEndPoint, fileName);
+
+                        BinaryWriter bWrite = new BinaryWriter(File.Open(sDirPath + fileName, FileMode.Append)); ;
+                        bWrite.Write(getByte, 4 + fileNameLen, res - 4 - fileNameLen);
+
+                        Console.WriteLine("File: {0} received & saved at path: {1}", fileName, sDirPath);
+
                     }
                     else
                     {
                         //string
-                        string stringbyte = Encoding.UTF8.GetString(getByte, 4, getByte.Length);
+                        string stringbyte = Encoding.UTF8.GetString(getByte, 0, getByte.Length);
                         if (stringbyte != String.Empty)
                         {
                             int getValueLength = 0;
                             getValueLength = byteArrayDefrag(getByte);
 
-                            stringbyte = Encoding.UTF8.GetString(getByte, 0, getValueLength + 1);
+                            stringbyte = Encoding.UTF8.GetString(getByte, 1, getValueLength + 1);
 
                             Console.WriteLine("1. 수신데이터:{0} | 길이:{1}", stringbyte, getValueLength + 1);
-
+                            
                             if (getValueLength + 1 > 1)
                             {
                                 JObject obj = JObject.Parse(stringbyte);
@@ -135,7 +142,7 @@ namespace VideoController
                                     json.Add("id", "user_info");
                                     json.Add("result", "success");
 
-                                    i.socket.Send(Encoding.UTF8.GetBytes(json.ToString()));
+                                    //i.socket.Send(Encoding.UTF8.GetBytes(json.ToString()));
                                 }
                             }
 
@@ -187,7 +194,14 @@ namespace VideoController
             {
                 if (info.socket.Connected)
                 {
-                    info.socket.Send(Encoding.UTF8.GetBytes(text));
+                    try
+                    {
+                        info.socket.Send(Encoding.UTF8.GetBytes(text));
+                    }
+                    catch (SocketException e) {
+                        
+                    }
+                    
                 }
             }
         }
