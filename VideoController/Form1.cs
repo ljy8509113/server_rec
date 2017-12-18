@@ -22,7 +22,7 @@ namespace VideoController
         string ip = "";
         string settingPath = "./setting.txt";
         bool isOpenSocket = false;
-        
+
         public Form1()
         {
             InitializeComponent();
@@ -53,13 +53,13 @@ namespace VideoController
 
             backgroundWorker1 = new BackgroundWorker();
             backgroundWorker1.RunWorkerCompleted += new RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
-            
+
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            if(openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 this.textBox1.Text = openFileDialog.FileName;
             }
@@ -104,7 +104,7 @@ namespace VideoController
                 return;
             }
 
-            if(!int.TryParse(port, out num))
+            if (!int.TryParse(port, out num))
             {
                 MessageBox.Show("숫자만 입력 가능합니다.");
                 return;
@@ -113,14 +113,14 @@ namespace VideoController
             JObject json = new JObject();
             json.Add("ip", ipAddr);
             json.Add("port", port);
-            
+
             StreamWriter sw = new StreamWriter(settingPath, false);
             sw.Write(json.ToString());
             this.port = port;
             this.ip = ipAddr;
             sw.Close();
 
-            if(SocketManager.getInstance()._isOn == false)
+            if (SocketManager.getInstance()._isOn == false)
             {
                 openSocket();
             }
@@ -128,7 +128,7 @@ namespace VideoController
             {
                 SocketManager.getInstance().onEnd();
                 Application.Restart();
-            }                                   
+            }
         }
 
         void openSocket()
@@ -169,7 +169,7 @@ namespace VideoController
                     ListViewItem item = new ListViewItem(info.name);
                     item.SubItems.Add(info.uuid);
                     item.SubItems.Add((info.isTeacher == true ? "선생님" : "학생"));
-                    item.SubItems.Add( (info.socket.Connected == true ? "연결":"해제") );
+                    item.SubItems.Add((info.socket.Connected == true ? "연결" : "해제"));
                     AddItem(item);
 
                 }
@@ -210,7 +210,7 @@ namespace VideoController
         {
             //녹화
             JObject json = new JObject();
-            json.Add("id","recode");
+            json.Add("id", "recode");
             SocketManager.getInstance().sendMessage(json.ToString(), null);
         }
 
@@ -228,6 +228,6 @@ namespace VideoController
             JObject json = new JObject();
             json.Add("id", "file");
             SocketManager.getInstance().sendMessage(json.ToString(), null);
-        }        
+        }
     }
 }
