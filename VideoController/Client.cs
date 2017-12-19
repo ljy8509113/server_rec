@@ -104,6 +104,11 @@ namespace VideoController
 
         public delegate void ClientDisconnectedHandler(Client sender);
         public event ClientDisconnectedHandler Disconnected;
+
+        public void sendMessage(string msg)
+        {
+            sck.Send(Encoding.UTF8.GetBytes(msg));
+        }
     }
 
 }

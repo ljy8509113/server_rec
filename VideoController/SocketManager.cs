@@ -54,121 +54,102 @@ namespace VideoController
         }
 
 
-        static void l_SocketAccepted(Socket e)
+        void l_SocketAccepted(Socket e)
         {
+            Client client = new Client(e);
+            client.Received += new Client.ClientReceivedHandler(client_Received);
+            client.Disconnected += new Client.ClientDisconnectedHandler(client_Disconnected);
+            
             Console.WriteLine("New Connection: {0}\n{1}\n=========================", e.RemoteEndPoint.ToString(), DateTime.Now.ToString());
             if (e != null)
             {
-
-                string p = ":";
-                ConnectionInfo info = new ConnectionInfo();
-                info.socket = e;
-                string strIp = e.RemoteEndPoint.ToString();
-
-                info.ip = strIp.Substring(0, strIp.IndexOf(p));
-                listSocket.Add(info);
-            }
-            instance.checkSockets();
-
-            int index = 1;
-            Console.WriteLine("Connected socket list\n=========================");
-
-            foreach (ConnectionInfo i in listSocket)
-            {
-                Console.WriteLine("{0} : {1} : socket handle {2}", index, i.socket.RemoteEndPoint.ToString(), i.socket.Handle.ToString());
-                index++;
-                if (e == i.socket)
+                bool isAdd = true;
+                if (listSocket.Count != 0)
                 {
-                    int res = i.socket.Receive(getByte, 0, getByte.Length, SocketFlags.None);
-                    int dataType = int.Parse(Encoding.UTF8.GetString(getByte, 0, 1));//BitConverter.ToInt32(getByte, 0);
-
-                    if (dataType == 2)
+                    foreach (ConnectionInfo i in listSocket)
                     {
-                        //file
-                        int getValueLength = 0;
-                        getValueLength = byteArrayDefrag(getByte);
-
-                        string sDirPath;
-                        sDirPath = Application.StartupPath + ".\\movie\\" + i.name + "\\";
-                        DirectoryInfo di = new DirectoryInfo(sDirPath);
-                        if (di.Exists == false)
-                        {
-                            di.Create();
-                        }
-                        Console.WriteLine("file in");
-                        //int receivedBytesLen = i.socket.Receive(getByte);
-
-                        int fileNameLen = BitConverter.ToInt32(getByte, 0);
-                        string fileName = Encoding.ASCII.GetString(getByte, 4, fileNameLen);
-
-                        Console.WriteLine("Client:{0} connected & File {1} started received.", i.socket.RemoteEndPoint, fileName);
-
-                        BinaryWriter bWrite = new BinaryWriter(File.Open(sDirPath + fileName, FileMode.Append)); ;
-                        bWrite.Write(getByte, 4 + fileNameLen, res - 4 - fileNameLen);
-
-                        Console.WriteLine("File: {0} received & saved at path: {1}", fileName, sDirPath);
-
+                        Client c = i.client as Client;
+                        if (c.ID == client.ID)
+                            isAdd = false;
                     }
-                    else
-                    {
-                        //string
-                        string stringbyte = Encoding.UTF8.GetString(getByte, 0, getByte.Length);
-                        if (stringbyte != String.Empty)
-                        {
-                            int getValueLength = 0;
-                            getValueLength = byteArrayDefrag(getByte);
+                }
+                if (isAdd)
+                {
+                    string p = ":";
+                    ConnectionInfo info = new ConnectionInfo();
+                    info.client = client;
+                    string strIp = e.RemoteEndPoint.ToString();
 
-                            stringbyte = Encoding.UTF8.GetString(getByte, 1, getValueLength + 1);
-
-                            Console.WriteLine("1. 수신데이터:{0} | 길이:{1}", stringbyte, getValueLength + 1);
-
-                            if (getValueLength + 1 > 1)
-                            {
-                                JObject obj = JObject.Parse(stringbyte);
-                                Console.WriteLine("json : {0}", obj);
-                                Console.WriteLine(obj["identifier"].ToString());
-
-                                if (obj["identifier"].ToString().Equals("user_info"))
-                                {
-                                    string name = obj["name"].ToString();
-                                    bool isTeacher = obj["user"].ToString().Equals("T") ? true : false;
-                                    string uuid = obj["device_id"].ToString();
-                                    Console.WriteLine("name : " + name + "  //  isTeacher : " + isTeacher + "  //  uuid : " + uuid);
-
-                                    i.setData(name, uuid, isTeacher);
-                                    instance.f.addConnectionInfo(listSocket);
-
-                                    JObject json = new JObject();
-                                    json.Add("id", "user_info");
-                                    json.Add("result", "success");
-
-                                    //i.socket.Send(Encoding.UTF8.GetBytes(json.ToString()));
-                                }else if (obj["identifier"].ToString().Equals("progress"))
-                                {
-                                    int persent = int.Parse(obj["persent"].ToString());
-                                    string fileName = obj["name"].ToString();
-                                    string uuid = obj["device_id"].ToString();
-                                    Console.WriteLine("progress : " + persent + " // " + fileName + "  //  uuid : " + uuid);
-                                }else if (obj["identifier"].ToString().Equals("downEnd"))
-                                {
-                                    int max = int.Parse(obj["max"].ToString());
-                                    int current = int.Parse(obj["current"].ToString());
-                                    string uuid = obj["device_id"].ToString();
-                                    Console.WriteLine("current : " + current + " // max : " + max);
-                                }
-                            }
-
-                        }
-                    }
-
-                    getByte = new byte[1024];
-                    setByte = new byte[1024];
+                    info.ip = strIp.Substring(0, strIp.IndexOf(p));
+                    listSocket.Add(info);
                 }
             }
-
             Console.WriteLine("");
         }
 
+        void client_Disconnected(Client sender)
+        {
+            for (int i = listSocket.Count - 1; i > -1; i--)
+            {
+                Client client = listSocket[i].client as Client;
+                if (client.ID == sender.ID)
+                {
+                    listSocket.RemoveAt(i);
+                    break;
+                }
+            }
+
+        }
+
+        void client_Received(Client sender, byte[] data)
+        {
+            for (int i = 0; i < listSocket.Count; i++)
+            {
+                Client client = listSocket[i].client as Client;
+
+                if (client.ID == sender.ID)
+                {
+                    string stringbyte = Encoding.UTF8.GetString(data, 0, data.Length);
+
+                    JObject obj = JObject.Parse(stringbyte);
+                    Console.WriteLine("json : {0}", obj);
+                    Console.WriteLine(obj["identifier"].ToString());
+
+                    if (obj["identifier"].ToString().Equals("user_info"))
+                    {
+                        string name = obj["name"].ToString();
+                        bool isTeacher = obj["user"].ToString().Equals("T") ? true : false;
+                        string uuid = obj["device_id"].ToString();
+                        Console.WriteLine("name : " + name + "  //  isTeacher : " + isTeacher + "  //  uuid : " + uuid);
+
+                        listSocket[i].setData(name, uuid, isTeacher);
+                        instance.f.addConnectionInfo(listSocket);
+                    }
+                    else if (obj["identifier"].ToString().Equals("progress"))
+                    {
+                        int persent = int.Parse(obj["persent"].ToString());
+                        int max  = int.Parse(obj["max"].ToString());
+                        int current = int.Parse(obj["current"].ToString());
+                        string fileName = obj["name"].ToString();
+                        string uuid = obj["device_id"].ToString();
+                        Console.WriteLine("progress : " + persent + " // " + fileName + "  //  uuid : " + uuid);
+                        f.updateProgress(uuid, persent, current, max);
+                    }
+                    else if (obj["identifier"].ToString().Equals("downEnd"))
+                    {
+                        int max = int.Parse(obj["max"].ToString());
+                        int current = int.Parse(obj["current"].ToString());
+                        string uuid = obj["device_id"].ToString();
+                        string fileName = obj["name"].ToString();
+                        Console.WriteLine("current : " + current + " // max : " + max);
+                        f.updateProgress(uuid, 100, current, max);
+                    }
+
+                    break;
+                }
+            }
+
+        }
 
         public string GetLocalIP()
         {
@@ -194,7 +175,8 @@ namespace VideoController
             {
                 foreach (ConnectionInfo i in listSocket)
                 {
-                    i.socket.Close();
+                    Client c = i.client as Client;
+                    client_Disconnected(c);
                 }
                 listSocket.Clear();
             }
@@ -204,40 +186,30 @@ namespace VideoController
         {
             foreach (ConnectionInfo info in listSocket)
             {
-                if (info.socket.Connected)
-                {
-                    try
-                    {
-                        info.socket.Send(Encoding.UTF8.GetBytes(text));
-                    }
-                    catch (SocketException e)
-                    {
-
-                    }
-
-                }
+                Client c = info.client as Client;
+                c.sendMessage(text);
             }
         }
 
-        public void checkSockets()
-        {
-            if (listSocket.Count > 0)
-            {
-                for (int i = listSocket.Count - 1; i >= 0; i--)
-                {
-                    try
-                    {
-                        int r = listSocket[i].socket.Send(Encoding.UTF8.GetBytes("1"));
-                        Console.WriteLine("r : " + r);
-                    }
-                    catch (Exception e)
-                    {
-                        listSocket.RemoveAt(i);
-                    }
+        //public void checkSockets()
+        //{
+        //    if (listSocket.Count > 0)
+        //    {
+        //        for (int i = listSocket.Count - 1; i >= 0; i--)
+        //        {
+        //            try
+        //            {
+        //                int r = listSocket[i].socket.Send(Encoding.UTF8.GetBytes("1"));
+        //                Console.WriteLine("r : " + r);
+        //            }
+        //            catch (Exception e)
+        //            {
+        //                listSocket.RemoveAt(i);
+        //            }
 
-                }
-            }
-        }
+        //        }
+        //    }
+        //}
 
         public static int byteArrayDefrag(byte[] sData)
         {

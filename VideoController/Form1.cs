@@ -160,7 +160,7 @@ namespace VideoController
                         i.SubItems[0].Text = info.name;
                         i.SubItems[1].Text = info.uuid;
                         i.SubItems[2].Text = (info.isTeacher == true ? "선생님" : "학생");
-                        i.SubItems[3].Text = (info.socket.Connected == true ? "연결" : "해제");
+                        i.SubItems[3].Text = "";//(info.socket.Connected == true ? "연결" : "해제");
                     }
                 }
 
@@ -169,7 +169,7 @@ namespace VideoController
                     ListViewItem item = new ListViewItem(info.name);
                     item.SubItems.Add(info.uuid);
                     item.SubItems.Add((info.isTeacher == true ? "선생님" : "학생"));
-                    item.SubItems.Add((info.socket.Connected == true ? "연결" : "해제"));
+                    item.SubItems.Add("");//item.SubItems.Add((info.socket.Connected == true ? "연결" : "해제"));
                     AddItem(item);
 
                 }
@@ -199,10 +199,56 @@ namespace VideoController
                 if (uuid.Equals(info.uuid))
                 {
                     info.setData(name, uuid, isTeacher);
-                    info.socket = s;
+                    //info.socket = s;
                 }
             }
             this.backgroundWorker1.RunWorkerAsync();
+
+        }
+
+        public void updateProgress(string uuid, int progress, int count, int max )
+        {
+            if(max == count && progress == 100)
+            {
+                //전송완료
+                foreach (ListViewItem i in this.listView1.Items)
+                {
+                    if (i.SubItems[1].Text.Equals(uuid))
+                    {
+                        i.SubItems[3].Text = "전송완료";
+                    }
+                }                
+            }
+            else
+            {
+                foreach (ListViewItem i in this.listView1.Items)
+                {
+                    if (i.SubItems[1].Text.Equals(uuid))
+                    {
+                        i.SubItems[3].Text = "전송중("+ count +"/" + max + " : " + progress + "%";
+                    }
+                }
+            }
+            this.listView1.EndUpdate();
+        }
+        
+        public void removeItem(string uuid)
+        {
+            for(int i=0; i<_listInfo.Count; i++)
+            {
+                _listInfo.RemoveAt(i);
+                break;
+            }
+
+            for (int i=0; i< this.listView1.Items.Count; i++)
+            {
+                if (this.listView1.Items[i].SubItems[1].Text.Equals(uuid))
+                {
+                    this.listView1.Items.RemoveAt(i);
+                    break;
+                }
+            }
+            this.listView1.EndUpdate();
 
         }
 

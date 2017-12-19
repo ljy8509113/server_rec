@@ -9,7 +9,8 @@ namespace VideoController
 {
     public class ConnectionInfo
     {
-        public Socket socket;
+        //public Socket socket;
+        public object client;
         public string ip;
         public string name;
         public string uuid;
