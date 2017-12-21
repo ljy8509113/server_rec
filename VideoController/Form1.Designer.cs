@@ -49,6 +49,8 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.textBox4 = new System.Windows.Forms.TextBox();
             this.button8 = new System.Windows.Forms.Button();
+            this.button9 = new System.Windows.Forms.Button();
+            this.button10 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -229,6 +231,8 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.button10);
+            this.tabPage2.Controls.Add(this.button9);
             this.tabPage2.Controls.Add(this.button8);
             this.tabPage2.Controls.Add(this.textBox4);
             this.tabPage2.Controls.Add(this.axWindowsMediaPlayer1);
@@ -257,6 +261,24 @@
             this.button8.Text = "OPEN";
             this.button8.UseVisualStyleBackColor = true;
             this.button8.Click += new System.EventHandler(this.button8_Click);
+            // 
+            // button9
+            // 
+            this.button9.Location = new System.Drawing.Point(17, 549);
+            this.button9.Name = "button9";
+            this.button9.Size = new System.Drawing.Size(75, 66);
+            this.button9.TabIndex = 4;
+            this.button9.Text = "재생";
+            this.button9.UseVisualStyleBackColor = true;
+            // 
+            // button10
+            // 
+            this.button10.Location = new System.Drawing.Point(112, 549);
+            this.button10.Name = "button10";
+            this.button10.Size = new System.Drawing.Size(75, 66);
+            this.button10.TabIndex = 5;
+            this.button10.Text = "정지";
+            this.button10.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -303,6 +325,8 @@
         private System.Windows.Forms.TextBox textBox3;
         private System.Windows.Forms.Button button8;
         private System.Windows.Forms.TextBox textBox4;
+        private System.Windows.Forms.Button button10;
+        private System.Windows.Forms.Button button9;
     }
 }
 
