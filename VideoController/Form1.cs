@@ -21,7 +21,6 @@ namespace VideoController
         string port = "0";
         string ip = "";
         string settingPath = "./setting.txt";
-        bool isOpenSocket = false;
 
         public Form1()
         {
@@ -30,7 +29,7 @@ namespace VideoController
             this.listView1.Columns.Add("디바이스 이름", 200);
             this.listView1.Columns.Add("UUID", 200);
             this.listView1.Columns.Add("User", 50);
-            this.listView1.Columns.Add("상태", 100);
+            this.listView1.Columns.Add("상태", 200);
 
             FileInfo protFile = new FileInfo(settingPath);
             if (protFile.Exists)
@@ -44,6 +43,11 @@ namespace VideoController
 
                 textBox3.Text = this.ip;
                 textBox2.Text = this.port;
+
+                button6.Enabled = false;
+                textBox2.Enabled = false;
+                textBox3.Enabled = false;
+
                 openSocket();
             }
             else
@@ -122,6 +126,10 @@ namespace VideoController
 
             if (SocketManager.getInstance()._isOn == false)
             {
+                button6.Enabled = false;
+                textBox2.Enabled = false;
+                textBox3.Enabled = false;
+
                 openSocket();
             }
             else
@@ -157,10 +165,18 @@ namespace VideoController
                     if (i.SubItems[1].Text.Equals(info.uuid))
                     {
                         isUsed = true;
-                        i.SubItems[0].Text = info.name;
-                        i.SubItems[1].Text = info.uuid;
-                        i.SubItems[2].Text = (info.isTeacher == true ? "선생님" : "학생");
-                        i.SubItems[3].Text = "";//(info.socket.Connected == true ? "연결" : "해제");
+                        if (info.isDownloading)
+                        {
+                            i.SubItems[3].Text = info.getDownMsg();
+                        }
+                        else
+                        {
+                            i.SubItems[0].Text = info.name;
+                            i.SubItems[1].Text = info.uuid;
+                            i.SubItems[2].Text = (info.isTeacher == true ? "선생님" : "학생");
+                            i.SubItems[3].Text = "";//(info.socket.Connected == true ? "연결" : "해제");
+                        }
+                        break;
                     }
                 }
 
@@ -205,31 +221,32 @@ namespace VideoController
             this.backgroundWorker1.RunWorkerAsync();
 
         }
-
-        public void updateProgress(string uuid, int progress, int count, int max )
+        
+        public void updateProgress(string uuid, int progress, int current, int max, string fileName)
         {
-            if(max == count && progress == 100)
+            foreach(ConnectionInfo info in _listInfo)
             {
-                //전송완료
-                foreach (ListViewItem i in this.listView1.Items)
+                if (uuid.Equals(info.uuid))
                 {
-                    if (i.SubItems[1].Text.Equals(uuid))
+                    if (!info.isDownloading)
                     {
-                        i.SubItems[3].Text = "전송완료";
+                        info.sendFile(true, fileName);
                     }
-                }                
-            }
-            else
-            {
-                foreach (ListViewItem i in this.listView1.Items)
-                {
-                    if (i.SubItems[1].Text.Equals(uuid))
+                    else
                     {
-                        i.SubItems[3].Text = "전송중("+ count +"/" + max + " : " + progress + "%";
+                        if (progress == 100 && current == max)
+                        {
+                            info.endDownLoad();
+                        }
+                        else
+                        {
+                            info.progressData(current, progress, max);
+                        }
                     }
                 }
             }
-            this.listView1.EndUpdate();
+            
+            this.backgroundWorker1.RunWorkerAsync();
         }
         
         public void removeItem(string uuid)
@@ -257,7 +274,7 @@ namespace VideoController
             //녹화
             JObject json = new JObject();
             json.Add("id", "recode");
-            SocketManager.getInstance().sendMessage(json.ToString(), null);
+            SocketManager.getInstance().sendMessage(json.ToString(), null, false);
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -265,7 +282,7 @@ namespace VideoController
             //중지
             JObject json = new JObject();
             json.Add("id", "stop");
-            SocketManager.getInstance().sendMessage(json.ToString(), null);
+            SocketManager.getInstance().sendMessage(json.ToString(), null, false);
         }
 
         private void button7_Click(object sender, EventArgs e)
@@ -273,7 +290,18 @@ namespace VideoController
             //영상 가져오기 
             JObject json = new JObject();
             json.Add("id", "file");
-            SocketManager.getInstance().sendMessage(json.ToString(), null);
+            SocketManager.getInstance().sendMessage(json.ToString(), null, true);
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            //대표(선생용)
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                this.textBox4.Text = openFileDialog.FileName;
+            }
         }
     }
+    
 }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
+using Newtonsoft.Json.Linq;
 
 namespace VideoController
 {
@@ -37,7 +38,7 @@ namespace VideoController
             {
                 sck.EndReceive(ar);
 
-                byte[] buf = new byte[8192];
+                byte[] buf = new byte[1024];
 
                 int rec = sck.Receive(buf, buf.Length, 0);
 
@@ -53,7 +54,7 @@ namespace VideoController
 
                 if (rec < buf.Length)
                 {
-                    Array.Resize<byte>(ref buf, rec);
+                    Array.Resize<byte>(ref buf, byteArrayDefrag(buf)+1);
                 }
 
                 if (Received != null)
@@ -106,8 +107,24 @@ namespace VideoController
         public event ClientDisconnectedHandler Disconnected;
 
         public void sendMessage(string msg)
+        {            
+            byte[] req = Encoding.UTF8.GetBytes(msg);
+            if(sck.Connected)
+                sck.Send(req);                      
+        }
+
+        public int byteArrayDefrag(byte[] sData)
         {
-            sck.Send(Encoding.UTF8.GetBytes(msg));
+            int endLength = 0;
+
+            for (int i = 0; i < sData.Length; i++)
+            {
+                if ((byte)sData[i] != (byte)0)
+                {
+                    endLength = i;
+                }
+            }
+            return endLength;
         }
     }
 
