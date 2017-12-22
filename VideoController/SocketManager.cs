@@ -124,15 +124,8 @@ namespace VideoController
                         string uuid = obj["device_id"].ToString();
                         Console.WriteLine("name : " + name + "  //  isTeacher : " + isTeacher + "  //  uuid : " + uuid);
 
-                        listSocket[i].setData(name, uuid, isTeacher);
+                        listSocket[i].setData(name, uuid, isTeacher, "대기중");
                         instance.f.addConnectionInfo(listSocket);
-
-                        //var json = new JObject();
-                        //json.Add("id", "return");
-                        //json.Add("result", "success");
-                        //json.Add("req_id", "user_info");
-                        //client.sendMessage(json.ToString());
-
                     }
                     else if (obj["identifier"].ToString().Equals("progress"))
                     {
@@ -152,6 +145,20 @@ namespace VideoController
                         string fileName = obj["name"].ToString();
                         Console.WriteLine("current : " + current + " // max : " + max);
                         instance.f.updateProgress(uuid, 100, current, max, fileName);
+                    }
+                    else if (obj["identifier"].ToString().Equals("recode"))
+                    {
+                        string uuid = obj["device_id"].ToString();
+                        Console.WriteLine("recode : " + uuid);
+
+                        f.changeStatus("녹화중",uuid);
+                    }
+                    else if (obj["identifier"].ToString().Equals("stop"))
+                    {
+                        string uuid = obj["device_id"].ToString();
+                        Console.WriteLine("stop : " + uuid);
+                        
+                        f.changeStatus("대기중", uuid);
                     }
 
                     break;

@@ -18,9 +18,9 @@ namespace VideoController
 {
     public partial class Form1 : Form
     {
-        string port = "0";
+        string port = "";
         string ip = "";
-        string settingPath = "./setting.txt";
+        List<ViewItem> viewerList = null;
 
         public Form1()
         {
@@ -31,32 +31,69 @@ namespace VideoController
             this.listView1.Columns.Add("User", 50);
             this.listView1.Columns.Add("상태", 200);
 
-            FileInfo protFile = new FileInfo(settingPath);
+            FileInfo protFile = new FileInfo(Common.SETTING_PATH);
             if (protFile.Exists)
             {
-                string settingStr = File.ReadAllText(settingPath);
+                string settingStr = File.ReadAllText(Common.SETTING_PATH);
                 JObject obj = JObject.Parse(settingStr);
 
                 Console.WriteLine("json : {0}", obj);
-                this.ip = obj["ip"].ToString();
-                this.port = obj["port"].ToString();
 
-                textBox3.Text = this.ip;
-                textBox2.Text = this.port;
+                JToken ftpToken = obj.GetValue(Common.KEY_FTP_PATH);
+                JToken ipToken = obj.GetValue(Common.KEY_IP);
+                JToken portToken = obj.GetValue(Common.KEY_PORT);
+                
 
-                button6.Enabled = false;
-                textBox2.Enabled = false;
-                textBox3.Enabled = false;
+                if(ipToken != null)
+                {
+                    this.ip = ipToken.ToString(); //obj[Common.KEY_IP].ToString();
+                    textBox3.Text = this.ip;
+                    textBox3.Enabled = false;
+                }
+                else
+                {
+                    MessageBox.Show("IP 설정이 필요합니다.");
+                    return;
+                }
+                
+                if(portToken != null)
+                {
+                    this.port = portToken.ToString();//obj[Common.KEY_PORT].ToString();
+                    textBox2.Text = this.port;
+                    textBox2.Enabled = false;
+                }
+                else
+                {
+                    MessageBox.Show("PORT 설정이 필요합니다.");
+                    return;
+                }
 
-                openSocket();
+                if (ftpToken != null)
+                {
+                    Common.FTP_PATH = ftpToken.ToString(); //obj[Common.KEY_FTP_PATH].ToString();
+                    label4.Text = Common.FTP_PATH;
+                    button13.Enabled = false;
+                }
+                else
+                {
+                    MessageBox.Show("FTP 파일 저장경로 설정이 필요합니다.");
+                }
+
+                if (ip.Equals("") || port.Equals(""))
+                    button6.Enabled = false;
+
+                if(!this.ip.Equals("") && !this.port.Equals(""))
+                    openSocket();
             }
             else
             {
-                MessageBox.Show("포트 설정이 필요합니다.");
+                MessageBox.Show("기본 설정이 필요합니다.");
             }
 
             backgroundWorker1 = new BackgroundWorker();
             backgroundWorker1.RunWorkerCompleted += new RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
+
+            panel1.AutoScroll = true;
 
         }
 
@@ -73,7 +110,7 @@ namespace VideoController
         {
             axWindowsMediaPlayer1.URL = textBox1.Text;
             axWindowsMediaPlayer1.settings.volume = 100;
-            axWindowsMediaPlayer1.Ctlcontrols.play();
+            //axWindowsMediaPlayer1.Ctlcontrols.play();
 
         }
 
@@ -114,15 +151,24 @@ namespace VideoController
                 return;
             }
 
-            JObject json = new JObject();
-            json.Add("ip", ipAddr);
-            json.Add("port", port);
+            //JObject json = new JObject();
+            //json.Add("ip", ipAddr);
+            //json.Add("port", port);
 
-            StreamWriter sw = new StreamWriter(settingPath, false);
-            sw.Write(json.ToString());
-            this.port = port;
+            //StreamWriter sw = new StreamWriter(settingPath, false);
+            //sw.Write(json.ToString());
+            //this.port = port;
+            //this.ip = ipAddr;
+            //sw.Close();
+
+            Dictionary<string, string> dic = new Dictionary<string, string>();
+            dic[Common.KEY_IP] = ipAddr;
+            dic[Common.KEY_PORT] = port;
+
+            saveSetting(dic);
+
             this.ip = ipAddr;
-            sw.Close();
+            this.port = port;
 
             if (SocketManager.getInstance()._isOn == false)
             {
@@ -174,7 +220,7 @@ namespace VideoController
                             i.SubItems[0].Text = info.name;
                             i.SubItems[1].Text = info.uuid;
                             i.SubItems[2].Text = (info.isTeacher == true ? "선생님" : "학생");
-                            i.SubItems[3].Text = "";//(info.socket.Connected == true ? "연결" : "해제");
+                            i.SubItems[3].Text = info.status;//(info.socket.Connected == true ? "연결" : "해제");
                         }
                         break;
                     }
@@ -185,46 +231,32 @@ namespace VideoController
                     ListViewItem item = new ListViewItem(info.name);
                     item.SubItems.Add(info.uuid);
                     item.SubItems.Add((info.isTeacher == true ? "선생님" : "학생"));
-                    item.SubItems.Add("");//item.SubItems.Add((info.socket.Connected == true ? "연결" : "해제"));
-                    AddItem(item);
+                    item.SubItems.Add(info.status);//item.SubItems.Add((info.socket.Connected == true ? "연결" : "해제"));
+                    AddItem(item, this.listView1);
 
                 }
             }
             this.listView1.EndUpdate();
         }
 
-        delegate void AddListCallback(ListViewItem item);
+        delegate void AddListCallback(ListViewItem item, ListView v);
 
-        private void AddItem(ListViewItem item)
+        private void AddItem(ListViewItem item, ListView v)
         {
-            if (this.listView1.InvokeRequired)
+            if (v.InvokeRequired)
             {
                 AddListCallback d = new AddListCallback(AddItem);
                 this.Invoke(d, new object[] { item });
             }
             else
             {
-                this.listView1.Items.Add(item);
+                v.Items.Add(item);
             }
         }
 
-        public void updateData(string name, string uuid, bool isTeacher, Socket s)
-        {
-            foreach (ConnectionInfo info in _listInfo)
-            {
-                if (uuid.Equals(info.uuid))
-                {
-                    info.setData(name, uuid, isTeacher);
-                    //info.socket = s;
-                }
-            }
-            this.backgroundWorker1.RunWorkerAsync();
-
-        }
-        
         public void updateProgress(string uuid, int progress, int current, int max, string fileName)
         {
-            foreach(ConnectionInfo info in _listInfo)
+            foreach (ConnectionInfo info in _listInfo)
             {
                 if (uuid.Equals(info.uuid))
                 {
@@ -245,19 +277,19 @@ namespace VideoController
                     }
                 }
             }
-            
+
             this.backgroundWorker1.RunWorkerAsync();
         }
-        
+
         public void removeItem(string uuid)
         {
-            for(int i=0; i<_listInfo.Count; i++)
+            for (int i = 0; i < _listInfo.Count; i++)
             {
                 _listInfo.RemoveAt(i);
                 break;
             }
 
-            for (int i=0; i< this.listView1.Items.Count; i++)
+            for (int i = 0; i < this.listView1.Items.Count; i++)
             {
                 if (this.listView1.Items[i].SubItems[1].Text.Equals(uuid))
                 {
@@ -297,11 +329,166 @@ namespace VideoController
         {
             //대표(선생용)
             OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (!Common.FTP_PATH.Equals(""))
+                openFileDialog.InitialDirectory = Common.FTP_PATH;
             if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 this.textBox4.Text = openFileDialog.FileName;
+                axWindowsMediaPlayer1.URL = openFileDialog.FileName;
+                axWindowsMediaPlayer1.settings.volume = 100;
+                axWindowsMediaPlayer1.Ctlcontrols.stop();
+            }
+        }
+
+        private void button11_Click(object sender, EventArgs e)
+        {
+            //플레이어 추가 
+            if (viewerList != null)
+            {
+                if (viewerList.Count >= 10)
+                {
+                    MessageBox.Show("최대 10개까지 추가 가능합니다.");
+                }
+                else
+                {
+                    addViewer(viewerList.Count * viewerList[0].height);
+                }
+            }
+            else
+            {
+                viewerList = new List<ViewItem>();
+                addViewer(0);
+            }
+        }
+
+        void addViewer(int y)
+        {
+            ViewItem v = new ViewItem();
+            panel1.Controls.Add(v);
+            v.init(y);
+            v.Tag = viewerList.Count + "h";
+            viewerList.Add(v);
+        }
+
+        private void button12_Click(object sender, EventArgs e)
+        {
+            //플레이어 제거
+            if (viewerList != null && viewerList.Count > 0)
+            {
+                for (int i = 0; i < panel1.Controls.Count; i++)
+                {
+                    Control ctr = panel1.Controls[i];
+
+                    if (ctr.Tag.Equals(viewerList.Count - 1 + "h"))
+                    {
+                        panel1.Controls.Remove(ctr);
+                        viewerList.RemoveAt(i);
+                        break;
+                    }
+                }
+
+            }
+        }
+
+        private void button9_Click(object sender, EventArgs e)
+        {
+            //전체 재생
+            axWindowsMediaPlayer1.Ctlcontrols.play();
+            foreach (ViewItem item in viewerList)
+            {
+                if (item.player.playState != WMPLib.WMPPlayState.wmppsPlaying)
+                {
+                    item.player.Ctlcontrols.play();
+                }
+            }
+        }
+
+        private void button10_Click(object sender, EventArgs e)
+        {
+            //전체 정지
+            axWindowsMediaPlayer1.Ctlcontrols.stop();
+            foreach (ViewItem item in viewerList)
+            {
+                if (item.player.playState != WMPLib.WMPPlayState.wmppsStopped)
+                {
+                    item.player.Ctlcontrols.stop();
+                }
+            }
+        }
+
+        private void button13_Click(object sender, EventArgs e)
+        {
+            //ftp 경로저장
+            FolderBrowserDialog dialog = new FolderBrowserDialog();
+            
+            if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                this.label4.Text = dialog.SelectedPath;
+                Dictionary<string, string> dic = new Dictionary<string, string>();
+                dic[Common.KEY_FTP_PATH] = dialog.SelectedPath;
+                Common.FTP_PATH = dialog.SelectedPath;
+                saveSetting(dic);
+            }
+        }
+
+        void saveSetting(Dictionary<string, string> dic)
+        {
+            FileInfo settingFile = new FileInfo(Common.SETTING_PATH);
+            JObject json = null;
+
+            if (settingFile.Exists)
+            {
+                string settingStr = File.ReadAllText(Common.SETTING_PATH);
+                json = JObject.Parse(settingStr);
+            }
+            else
+            {
+                json = new JObject();                
+            }
+
+            foreach(string key in dic.Keys)
+            {
+                json.Add(key, dic[key]);
+            }
+
+            StreamWriter sw = new StreamWriter(Common.SETTING_PATH, false);
+            sw.Write(json.ToString());
+            sw.Close();
+        }
+
+        public void changeStatus(string status)
+        {
+            foreach (ConnectionInfo info in _listInfo)
+            {
+                info.status = status;
+            }
+
+            this.backgroundWorker1.RunWorkerAsync();
+        }
+
+        public void changeStatus(string status, string uuid)
+        {
+            foreach (ConnectionInfo info in _listInfo)
+            {
+                if(uuid.Equals(info.uuid))
+                    info.status = status;
+            }
+
+            this.backgroundWorker1.RunWorkerAsync();
+        }
+
+        private void button14_Click(object sender, EventArgs e)
+        {
+            //일시 정지 
+            axWindowsMediaPlayer1.Ctlcontrols.pause();
+            foreach (ViewItem item in viewerList)
+            {
+                if (item.player.playState == WMPLib.WMPPlayState.wmppsPlaying)
+                {
+                    item.player.Ctlcontrols.pause();
+                }
             }
         }
     }
-    
+
 }

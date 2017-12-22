@@ -36,6 +36,8 @@
             this.textBox1 = new System.Windows.Forms.TextBox();
             this.tabControl1 = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
+            this.button13 = new System.Windows.Forms.Button();
+            this.label4 = new System.Windows.Forms.Label();
             this.textBox3 = new System.Windows.Forms.TextBox();
             this.button7 = new System.Windows.Forms.Button();
             this.label3 = new System.Windows.Forms.Label();
@@ -47,10 +49,14 @@
             this.listView1 = new System.Windows.Forms.ListView();
             this.label1 = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.textBox4 = new System.Windows.Forms.TextBox();
-            this.button8 = new System.Windows.Forms.Button();
-            this.button9 = new System.Windows.Forms.Button();
+            this.button12 = new System.Windows.Forms.Button();
+            this.button11 = new System.Windows.Forms.Button();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.button10 = new System.Windows.Forms.Button();
+            this.button9 = new System.Windows.Forms.Button();
+            this.button8 = new System.Windows.Forms.Button();
+            this.textBox4 = new System.Windows.Forms.TextBox();
+            this.button14 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -115,6 +121,8 @@
             // 
             // tabPage1
             // 
+            this.tabPage1.Controls.Add(this.button13);
+            this.tabPage1.Controls.Add(this.label4);
             this.tabPage1.Controls.Add(this.textBox3);
             this.tabPage1.Controls.Add(this.button7);
             this.tabPage1.Controls.Add(this.label3);
@@ -132,6 +140,25 @@
             this.tabPage1.TabIndex = 0;
             this.tabPage1.Text = "REC";
             this.tabPage1.UseVisualStyleBackColor = true;
+            // 
+            // button13
+            // 
+            this.button13.Location = new System.Drawing.Point(935, 586);
+            this.button13.Name = "button13";
+            this.button13.Size = new System.Drawing.Size(76, 23);
+            this.button13.TabIndex = 12;
+            this.button13.Text = "경로설정";
+            this.button13.UseVisualStyleBackColor = true;
+            this.button13.Click += new System.EventHandler(this.button13_Click);
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(933, 557);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(112, 12);
+            this.label4.TabIndex = 11;
+            this.label4.Text = "FTP 파일 저장 경로";
             // 
             // textBox3
             // 
@@ -231,6 +258,10 @@
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.button14);
+            this.tabPage2.Controls.Add(this.button12);
+            this.tabPage2.Controls.Add(this.button11);
+            this.tabPage2.Controls.Add(this.panel1);
             this.tabPage2.Controls.Add(this.button10);
             this.tabPage2.Controls.Add(this.button9);
             this.tabPage2.Controls.Add(this.button8);
@@ -245,12 +276,53 @@
             this.tabPage2.UseVisualStyleBackColor = true;
             this.tabPage2.Click += new System.EventHandler(this.tabPage2_Click);
             // 
-            // textBox4
+            // button12
             // 
-            this.textBox4.Location = new System.Drawing.Point(17, 33);
-            this.textBox4.Name = "textBox4";
-            this.textBox4.Size = new System.Drawing.Size(493, 21);
-            this.textBox4.TabIndex = 2;
+            this.button12.Location = new System.Drawing.Point(525, 641);
+            this.button12.Name = "button12";
+            this.button12.Size = new System.Drawing.Size(75, 66);
+            this.button12.TabIndex = 8;
+            this.button12.Text = "제거";
+            this.button12.UseVisualStyleBackColor = true;
+            this.button12.Click += new System.EventHandler(this.button12_Click);
+            // 
+            // button11
+            // 
+            this.button11.Location = new System.Drawing.Point(525, 549);
+            this.button11.Name = "button11";
+            this.button11.Size = new System.Drawing.Size(75, 66);
+            this.button11.TabIndex = 7;
+            this.button11.Text = "추가";
+            this.button11.UseVisualStyleBackColor = true;
+            this.button11.Click += new System.EventHandler(this.button11_Click);
+            // 
+            // panel1
+            // 
+            this.panel1.BackColor = System.Drawing.Color.Transparent;
+            this.panel1.Location = new System.Drawing.Point(627, 33);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(621, 674);
+            this.panel1.TabIndex = 6;
+            // 
+            // button10
+            // 
+            this.button10.Location = new System.Drawing.Point(112, 549);
+            this.button10.Name = "button10";
+            this.button10.Size = new System.Drawing.Size(75, 66);
+            this.button10.TabIndex = 5;
+            this.button10.Text = "전체 정지";
+            this.button10.UseVisualStyleBackColor = true;
+            this.button10.Click += new System.EventHandler(this.button10_Click);
+            // 
+            // button9
+            // 
+            this.button9.Location = new System.Drawing.Point(17, 549);
+            this.button9.Name = "button9";
+            this.button9.Size = new System.Drawing.Size(75, 66);
+            this.button9.TabIndex = 4;
+            this.button9.Text = "전체 재생";
+            this.button9.UseVisualStyleBackColor = true;
+            this.button9.Click += new System.EventHandler(this.button9_Click);
             // 
             // button8
             // 
@@ -262,23 +334,22 @@
             this.button8.UseVisualStyleBackColor = true;
             this.button8.Click += new System.EventHandler(this.button8_Click);
             // 
-            // button9
+            // textBox4
             // 
-            this.button9.Location = new System.Drawing.Point(17, 549);
-            this.button9.Name = "button9";
-            this.button9.Size = new System.Drawing.Size(75, 66);
-            this.button9.TabIndex = 4;
-            this.button9.Text = "재생";
-            this.button9.UseVisualStyleBackColor = true;
+            this.textBox4.Location = new System.Drawing.Point(17, 33);
+            this.textBox4.Name = "textBox4";
+            this.textBox4.Size = new System.Drawing.Size(493, 21);
+            this.textBox4.TabIndex = 2;
             // 
-            // button10
+            // button14
             // 
-            this.button10.Location = new System.Drawing.Point(112, 549);
-            this.button10.Name = "button10";
-            this.button10.Size = new System.Drawing.Size(75, 66);
-            this.button10.TabIndex = 5;
-            this.button10.Text = "정지";
-            this.button10.UseVisualStyleBackColor = true;
+            this.button14.Location = new System.Drawing.Point(209, 549);
+            this.button14.Name = "button14";
+            this.button14.Size = new System.Drawing.Size(75, 66);
+            this.button14.TabIndex = 9;
+            this.button14.Text = "전체 일시 정지";
+            this.button14.UseVisualStyleBackColor = true;
+            this.button14.Click += new System.EventHandler(this.button14_Click);
             // 
             // Form1
             // 
@@ -327,6 +398,12 @@
         private System.Windows.Forms.TextBox textBox4;
         private System.Windows.Forms.Button button10;
         private System.Windows.Forms.Button button9;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Button button11;
+        private System.Windows.Forms.Button button12;
+        private System.Windows.Forms.Button button13;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Button button14;
     }
 }
 

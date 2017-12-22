@@ -15,12 +15,14 @@ namespace VideoController
         public string name;
         public string uuid;
         public bool isTeacher;
+        public string status = "";
 
-        public void setData(string name, string uuid, bool isTeacher)
+        public void setData(string name, string uuid, bool isTeacher, string status)
         {
             this.name = name;
             this.uuid = uuid;
             this.isTeacher = isTeacher;
+            this.status = status;
         }
 
         public bool isDownloading = false;
@@ -56,13 +58,20 @@ namespace VideoController
             if (isDownloading)
             {
                 if (current == max && progress == 100)
-                    return "전송완료";
+                {
+                    status = "전송완료";
+                    return status;
+                }
                 else
+                {
+                    status = "전송중";
                     return "전송중 (" + current + "/" + max + " : " + progress + "%)";
+                }   
             }
             else
             {
-                return "접속중";
+                status = "접속중";
+                return status;
             }
             
         }
