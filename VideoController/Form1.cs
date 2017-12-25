@@ -193,17 +193,15 @@ namespace VideoController
         }
 
         private BackgroundWorker backgroundWorker1;
-        List<ConnectionInfo> _listInfo = new List<ConnectionInfo>();
 
-        public void addConnectionInfo(List<ConnectionInfo> list)
+        public void addConnectionInfo()
         {
-            _listInfo = list;
             this.backgroundWorker1.RunWorkerAsync();
         }
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            foreach (ConnectionInfo info in _listInfo)
+            foreach (ConnectionInfo info in SocketManager.getInstance().listSocket)
             {
                 bool isUsed = false;
                 foreach (ListViewItem i in this.listView1.Items)
@@ -256,65 +254,100 @@ namespace VideoController
 
         public void updateProgress(string uuid, int progress, int current, int max, string fileName)
         {
-            foreach (ConnectionInfo info in _listInfo)
+            //foreach (ConnectionInfo info in _listInfo)
+            //{
+            //    if (uuid.Equals(info.uuid))
+            //    {
+            //        if (!info.isDownloading)
+            //        {
+            //            info.sendFile(true, fileName);
+            //        }
+            //        else
+            //        {
+            //            if (progress == 100 && current == max)
+            //            {
+            //                info.endDownLoad();
+            //            }
+            //            else
+            //            {
+            //                info.progressData(current, progress, max);
+            //            }
+            //        }
+            //    }
+            //}
+
+            //this.backgroundWorker1.RunWorkerAsync();
+        }
+
+        public void updateMovieCount(int current, int max, string uuid)
+        {
+            foreach(ConnectionInfo info in SocketManager.getInstance().listSocket)
             {
                 if (uuid.Equals(info.uuid))
                 {
-                    if (!info.isDownloading)
-                    {
-                        info.sendFile(true, fileName);
-                    }
+                    if(current != max)
+                        info.progressData(current, max);
                     else
-                    {
-                        if (progress == 100 && current == max)
-                        {
-                            info.endDownLoad();
-                        }
-                        else
-                        {
-                            info.progressData(current, progress, max);
-                        }
-                    }
+                        info.endDownLoad();
                 }
             }
-
             this.backgroundWorker1.RunWorkerAsync();
         }
 
-        public void removeItem(string uuid)
-        {
-            for (int i = 0; i < _listInfo.Count; i++)
-            {
-                _listInfo.RemoveAt(i);
-                break;
-            }
+        //public void removeItem(string uuid)
+        //{
+        //    for (int i = 0; i < SocketManager.getInstance().listSocket.Count; i++)
+        //    {
+        //        _listInfo.RemoveAt(i);
+        //        break;
+        //    }
 
-            for (int i = 0; i < this.listView1.Items.Count; i++)
+        //    for (int i = 0; i < this.listView1.Items.Count; i++)
+        //    {
+        //        if (this.listView1.Items[i].SubItems[1].Text.Equals(uuid))
+        //        {
+        //            this.listView1.Items.RemoveAt(i);
+        //            break;
+        //        }
+        //    }
+        //    this.listView1.EndUpdate();
+
+        //}
+
+        bool isDownloading()
+        {
+            foreach (ConnectionInfo info in SocketManager.getInstance().listSocket)
             {
-                if (this.listView1.Items[i].SubItems[1].Text.Equals(uuid))
+                if (info.isDownloading)
                 {
-                    this.listView1.Items.RemoveAt(i);
-                    break;
+                    MessageBox.Show("동영상을 가져오는 중입니다.");
+                    return true;
                 }
             }
-            this.listView1.EndUpdate();
 
+            return false;
         }
-
+        
         private void button4_Click(object sender, EventArgs e)
         {
             //녹화
-            JObject json = new JObject();
-            json.Add("id", "recode");
-            SocketManager.getInstance().sendMessage(json.ToString(), null, false);
+            if (!isDownloading())
+            {
+                JObject json = new JObject();
+                json.Add("id", "recode");
+                SocketManager.getInstance().sendMessage(json.ToString(), null);
+            }            
         }
 
         private void button5_Click(object sender, EventArgs e)
         {
             //중지
-            JObject json = new JObject();
-            json.Add("id", "stop");
-            SocketManager.getInstance().sendMessage(json.ToString(), null, false);
+            if (!isDownloading())
+            {
+                JObject json = new JObject();
+                json.Add("id", "stop");
+                SocketManager.getInstance().sendMessage(json.ToString(), null);
+            }            
         }
 
         private void button7_Click(object sender, EventArgs e)
@@ -322,7 +355,17 @@ namespace VideoController
             //영상 가져오기 
             JObject json = new JObject();
             json.Add("id", "file");
-            SocketManager.getInstance().sendMessage(json.ToString(), null, true);
+           
+            foreach (ConnectionInfo info in SocketManager.getInstance().listSocket)
+            {
+                if (!info.isDownloading)
+                {
+                    info.sendFile(true);
+                    SocketManager.getInstance().sendMessage(json.ToString(), null);
+                }                
+            }
+
+            this.backgroundWorker1.RunWorkerAsync();            
         }
 
         private void button8_Click(object sender, EventArgs e)
@@ -458,7 +501,7 @@ namespace VideoController
 
         public void changeStatus(string status)
         {
-            foreach (ConnectionInfo info in _listInfo)
+            foreach (ConnectionInfo info in SocketManager.getInstance().listSocket)
             {
                 info.status = status;
             }
@@ -468,7 +511,7 @@ namespace VideoController
 
         public void changeStatus(string status, string uuid)
         {
-            foreach (ConnectionInfo info in _listInfo)
+            foreach (ConnectionInfo info in SocketManager.getInstance().listSocket)
             {
                 if(uuid.Equals(info.uuid))
                     info.status = status;

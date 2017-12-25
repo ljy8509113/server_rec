@@ -26,8 +26,8 @@ namespace VideoController
         }
 
         int port = 0;
-        static Listener l;
-        static List<ConnectionInfo> listSocket;
+        Listener l;
+        public List<ConnectionInfo> listSocket;
         public bool _isOn = false;
         public Form1 f = null;
         string ip = "";
@@ -111,7 +111,17 @@ namespace VideoController
 
                 if (client.ID == sender.ID)
                 {
-                    string stringbyte = Encoding.UTF8.GetString(data, 0, data.Length);
+                    string stringbyte = "";
+
+                    try
+                    {
+                        stringbyte = Encoding.UTF8.GetString(data, 0, data.Length);
+                    }
+                    catch (ArgumentException e)
+                    {
+                        Console.WriteLine("ArgumentException : "+ e);
+                    }
+                    
 
                     JObject obj = JObject.Parse(stringbyte);
                     Console.WriteLine("json : {0}", obj);
@@ -124,18 +134,18 @@ namespace VideoController
                         string uuid = obj["device_id"].ToString();
                         Console.WriteLine("name : " + name + "  //  isTeacher : " + isTeacher + "  //  uuid : " + uuid);
 
-                        listSocket[i].setData(name, uuid, isTeacher, "대기중");
-                        instance.f.addConnectionInfo(listSocket);
+                        listSocket[i].setData(name, uuid, isTeacher, "접속중");
+                        instance.f.addConnectionInfo();
                     }
                     else if (obj["identifier"].ToString().Equals("progress"))
                     {
-                        int persent = int.Parse(obj["persent"].ToString());
-                        int max = int.Parse(obj["max"].ToString());
-                        int current = int.Parse(obj["current"].ToString());
-                        string fileName = obj["name"].ToString();
-                        string uuid = obj["device_id"].ToString();
-                        Console.WriteLine("progress : " + persent + " // " + fileName + "  //  uuid : " + uuid);
-                        instance.f.updateProgress(uuid, persent, current, max, fileName);
+                        //int persent = int.Parse(obj["persent"].ToString());
+                        //int max = int.Parse(obj["max"].ToString());
+                        //int current = int.Parse(obj["current"].ToString());
+                        //string fileName = obj["name"].ToString();
+                        //string uuid = obj["device_id"].ToString();
+                        //Console.WriteLine("progress : " + persent + " // " + fileName + "  //  uuid : " + uuid);
+                        //instance.f.updateProgress(uuid, persent, current, max, fileName);
                     }
                     else if (obj["identifier"].ToString().Equals("downEnd"))
                     {
@@ -144,7 +154,8 @@ namespace VideoController
                         string uuid = obj["device_id"].ToString();
                         string fileName = obj["name"].ToString();
                         Console.WriteLine("current : " + current + " // max : " + max);
-                        instance.f.updateProgress(uuid, 100, current, max, fileName);
+                        //instance.f.updateProgress(uuid, 100, current, max, fileName);
+                        instance.f.updateMovieCount(current, max, uuid);                                               
                     }
                     else if (obj["identifier"].ToString().Equals("recode"))
                     {
@@ -158,7 +169,7 @@ namespace VideoController
                         string uuid = obj["device_id"].ToString();
                         Console.WriteLine("stop : " + uuid);
                         
-                        f.changeStatus("대기중", uuid);
+                        f.changeStatus("접속중", uuid);
                     }
 
                     break;
@@ -198,28 +209,24 @@ namespace VideoController
             }
         }
 
-        public void sendMessage(string text, string uuid, bool isFile)
+        public void sendMessage(string text, string uuid)
         {
             foreach (ConnectionInfo info in listSocket)
             {
-                if (isFile)
-                {
-                    if(info.isDownloading)
-                    {
-                        MessageBox.Show("현제 동영상 업로드 중입니다.");
-                    }
-                    else
-                    {
-                        Client c = info.client as Client;
-                        c.sendMessage(text);
-                    }
-                }
-                else
+                if(uuid == null)
                 {
                     Client c = info.client as Client;
                     c.sendMessage(text);
                 }
-                
+                else
+                {
+                    if (uuid.Equals(info.uuid))
+                    {
+                        Client c = info.client as Client;
+                        c.sendMessage(text);
+                        break;
+                    }
+                }                
             }
         }
 
@@ -255,7 +262,7 @@ namespace VideoController
                 }
             }
             return endLength;
-        }
+        }         
 
     }
 }
