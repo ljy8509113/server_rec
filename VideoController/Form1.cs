@@ -221,6 +221,11 @@ namespace VideoController
             }
         }
 
+        private void movieClick(object sender, EventArgs e)
+        {
+
+        }
+
         public bool openSocket()
         {
             SocketManager.getInstance().f = this;
