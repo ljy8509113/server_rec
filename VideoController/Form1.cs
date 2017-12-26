@@ -600,11 +600,7 @@ namespace VideoController
             }            
         }
 
-        private void axWindowsMediaPlayer1_Enter(object sender, EventArgs e)
-        {
-            AxWMPLib.AxWindowsMediaPlayer player = (AxWMPLib.AxWindowsMediaPlayer)sender;
-            player.fullScreen = !player.fullScreen;            
-        }
+        
     }
 
 }

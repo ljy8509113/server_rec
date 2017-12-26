@@ -35,15 +35,14 @@ namespace VideoController
             player.Enabled = true;
             player.Enter += new System.EventHandler(this.axWindowsMediaPlayer1_Enter);
             Controls.Add(player);
-
-
+            
         }
 
         private void button_Click(object sender, EventArgs e)
         {
             //open
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            if(!Common.FTP_PATH.Equals(""))
+            if (!Common.FTP_PATH.Equals(""))
                 openFileDialog.InitialDirectory = Common.FTP_PATH;
 
             if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -59,7 +58,10 @@ namespace VideoController
         private void axWindowsMediaPlayer1_Enter(object sender, EventArgs e)
         {
             AxWMPLib.AxWindowsMediaPlayer p = (AxWMPLib.AxWindowsMediaPlayer)sender;
-            p.fullScreen = !p.fullScreen;
+            if (!p.fullScreen)
+                p.fullScreen = true;
         }
+
+
     }
 }
