@@ -27,8 +27,8 @@ namespace VideoController
             InitializeComponent();
 
             this.listView1.Columns.Add("디바이스 이름", 200);
-            this.listView1.Columns.Add("UUID", 200);
-            this.listView1.Columns.Add("User", 50);
+            //this.listView1.Columns.Add("UUID", 200);
+            this.listView1.Columns.Add("User", 120);
             this.listView1.Columns.Add("상태", 200);
 
             FileInfo protFile = new FileInfo(Common.SETTING_PATH);
@@ -220,12 +220,7 @@ namespace VideoController
                 Application.Restart();
             }
         }
-
-        private void movieClick(object sender, EventArgs e)
-        {
-
-        }
-
+        
         public bool openSocket()
         {
             SocketManager.getInstance().f = this;
@@ -269,19 +264,19 @@ namespace VideoController
                 bool isUsed = false;
                 foreach (ListViewItem i in this.listView1.Items)
                 {
-                    if (i.SubItems[1].Text.Equals(info.uuid))
+                    if (i.Tag.Equals(info.uuid))
                     {
                         isUsed = true;
                         if (info.isDownloading)
                         {
-                            i.SubItems[3].Text = info.getDownMsg();
+                            i.SubItems[2].Text = info.getDownMsg();
                         }
                         else
                         {
+                            i.Tag = info.uuid;
                             i.SubItems[0].Text = info.name;
-                            i.SubItems[1].Text = info.uuid;
-                            i.SubItems[2].Text = (info.isTeacher == true ? "선생님" : "학생");
-                            i.SubItems[3].Text = info.status;//(info.socket.Connected == true ? "연결" : "해제");
+                            i.SubItems[1].Text = (info.isTeacher == true ? "선생님" : "학생");
+                            i.SubItems[2].Text = info.status;//(info.socket.Connected == true ? "연결" : "해제");
                         }
                         break;
                     }
@@ -290,7 +285,7 @@ namespace VideoController
                 if (!isUsed)
                 {
                     ListViewItem item = new ListViewItem(info.name);
-                    item.SubItems.Add(info.uuid);
+                    item.Tag = info.uuid;
                     item.SubItems.Add((info.isTeacher == true ? "선생님" : "학생"));
                     item.SubItems.Add(info.status);//item.SubItems.Add((info.socket.Connected == true ? "연결" : "해제"));
                     AddItem(item, this.listView1);
@@ -500,26 +495,32 @@ namespace VideoController
         {
             //전체 재생
             axWindowsMediaPlayer1.Ctlcontrols.play();
-            foreach (ViewItem item in viewerList)
+            if(viewerList != null)
             {
-                if (item.player.playState != WMPLib.WMPPlayState.wmppsPlaying)
+                foreach (ViewItem item in viewerList)
                 {
-                    item.player.Ctlcontrols.play();
+                    if (item.player.playState != WMPLib.WMPPlayState.wmppsPlaying)
+                    {
+                        item.player.Ctlcontrols.play();
+                    }
                 }
-            }
+            }            
         }
 
         private void button10_Click(object sender, EventArgs e)
         {
             //전체 정지
             axWindowsMediaPlayer1.Ctlcontrols.stop();
-            foreach (ViewItem item in viewerList)
+            if(viewerList != null)
             {
-                if (item.player.playState != WMPLib.WMPPlayState.wmppsStopped)
+                foreach (ViewItem item in viewerList)
                 {
-                    item.player.Ctlcontrols.stop();
+                    if (item.player.playState != WMPLib.WMPPlayState.wmppsStopped)
+                    {
+                        item.player.Ctlcontrols.stop();
+                    }
                 }
-            }
+            }            
         }
 
         private void button13_Click(object sender, EventArgs e)
@@ -587,13 +588,22 @@ namespace VideoController
         {
             //일시 정지 
             axWindowsMediaPlayer1.Ctlcontrols.pause();
-            foreach (ViewItem item in viewerList)
+            if (viewerList != null)
             {
-                if (item.player.playState == WMPLib.WMPPlayState.wmppsPlaying)
+                foreach (ViewItem item in viewerList)
                 {
-                    item.player.Ctlcontrols.pause();
+                    if (item.player.playState == WMPLib.WMPPlayState.wmppsPlaying)
+                    {
+                        item.player.Ctlcontrols.pause();
+                    }
                 }
-            }
+            }            
+        }
+
+        private void axWindowsMediaPlayer1_Enter(object sender, EventArgs e)
+        {
+            AxWMPLib.AxWindowsMediaPlayer player = (AxWMPLib.AxWindowsMediaPlayer)sender;
+            player.fullScreen = !player.fullScreen;            
         }
     }
 

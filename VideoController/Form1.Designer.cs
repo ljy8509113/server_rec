@@ -49,6 +49,7 @@
             this.listView1 = new System.Windows.Forms.ListView();
             this.label1 = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.button14 = new System.Windows.Forms.Button();
             this.button12 = new System.Windows.Forms.Button();
             this.button11 = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
@@ -56,7 +57,6 @@
             this.button9 = new System.Windows.Forms.Button();
             this.button8 = new System.Windows.Forms.Button();
             this.textBox4 = new System.Windows.Forms.TextBox();
-            this.button14 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -71,8 +71,7 @@
             this.axWindowsMediaPlayer1.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axWindowsMediaPlayer1.OcxState")));
             this.axWindowsMediaPlayer1.Size = new System.Drawing.Size(583, 412);
             this.axWindowsMediaPlayer1.TabIndex = 0;
-            this.axWindowsMediaPlayer1.Click += new System.EventHandler(this.movieClick);
-            
+            this.axWindowsMediaPlayer1.Enter += new System.EventHandler(this.axWindowsMediaPlayer1_Enter);
             // 
             // button1
             // 
@@ -278,6 +277,16 @@
             this.tabPage2.UseVisualStyleBackColor = true;
             this.tabPage2.Click += new System.EventHandler(this.tabPage2_Click);
             // 
+            // button14
+            // 
+            this.button14.Location = new System.Drawing.Point(209, 549);
+            this.button14.Name = "button14";
+            this.button14.Size = new System.Drawing.Size(75, 66);
+            this.button14.TabIndex = 9;
+            this.button14.Text = "전체 일시 정지";
+            this.button14.UseVisualStyleBackColor = true;
+            this.button14.Click += new System.EventHandler(this.button14_Click);
+            // 
             // button12
             // 
             this.button12.Location = new System.Drawing.Point(525, 641);
@@ -342,16 +351,6 @@
             this.textBox4.Name = "textBox4";
             this.textBox4.Size = new System.Drawing.Size(493, 21);
             this.textBox4.TabIndex = 2;
-            // 
-            // button14
-            // 
-            this.button14.Location = new System.Drawing.Point(209, 549);
-            this.button14.Name = "button14";
-            this.button14.Size = new System.Drawing.Size(75, 66);
-            this.button14.TabIndex = 9;
-            this.button14.Text = "전체 일시 정지";
-            this.button14.UseVisualStyleBackColor = true;
-            this.button14.Click += new System.EventHandler(this.button14_Click);
             // 
             // Form1
             // 

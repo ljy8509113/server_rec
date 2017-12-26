@@ -33,6 +33,7 @@ namespace VideoController
             player = new AxWMPLib.AxWindowsMediaPlayer();
             player.SetBounds(0, buttonOpen.Height + 13, width, 412);
             player.Enabled = true;
+            player.Enter += new System.EventHandler(this.axWindowsMediaPlayer1_Enter);
             Controls.Add(player);
 
 
@@ -53,6 +54,12 @@ namespace VideoController
             player.URL = txtTitle.Text;
             player.settings.volume = 100;
             player.Ctlcontrols.stop();
+        }
+
+        private void axWindowsMediaPlayer1_Enter(object sender, EventArgs e)
+        {
+            AxWMPLib.AxWindowsMediaPlayer p = (AxWMPLib.AxWindowsMediaPlayer)sender;
+            p.fullScreen = !p.fullScreen;
         }
     }
 }
