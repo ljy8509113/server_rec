@@ -32,22 +32,30 @@ namespace VideoController
         public Form1 f = null;
         string ip = "";
 
-        public void init(string ip, int port)
+        public bool init(string ip, int port)
         {
             this.port = port;
             this.ip = ip;
 
             Console.WriteLine("thread start");
-
             l = new Listener(Convert.ToInt32(port));
-
             listSocket = new List<ConnectionInfo>();
-
             l.SocketAccepted += new Listener.SocketAcceptedHandler(l_SocketAccepted);
-            l.Start(this.ip);
 
-            Console.ReadLine();
-            _isOn = true;
+            try
+            {
+                l.Start(this.ip);
+                Console.ReadLine();
+                _isOn = true;
+
+                
+            }
+            catch(Exception e)
+            {
+                _isOn = false;
+            }
+
+            return _isOn;
         }
 
 

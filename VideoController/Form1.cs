@@ -42,18 +42,23 @@ namespace VideoController
                 JToken ftpToken = obj.GetValue(Common.KEY_FTP_PATH);
                 JToken ipToken = obj.GetValue(Common.KEY_IP);
                 JToken portToken = obj.GetValue(Common.KEY_PORT);
-                
+
+                bool isIP = false;
+                bool isPort = false;
+                bool isFTP = false;
 
                 if(ipToken != null)
                 {
                     this.ip = ipToken.ToString(); //obj[Common.KEY_IP].ToString();
                     textBox3.Text = this.ip;
                     textBox3.Enabled = false;
+                    isIP = true;
                 }
                 else
                 {
-                    MessageBox.Show("IP 설정이 필요합니다.");
-                    return;
+                    //MessageBox.Show("IP 설정이 필요합니다.");
+                    //return;
+                    isIP = false;
                 }
                 
                 if(portToken != null)
@@ -61,11 +66,13 @@ namespace VideoController
                     this.port = portToken.ToString();//obj[Common.KEY_PORT].ToString();
                     textBox2.Text = this.port;
                     textBox2.Enabled = false;
+                    isPort = true;
                 }
                 else
                 {
-                    MessageBox.Show("PORT 설정이 필요합니다.");
-                    return;
+                    //MessageBox.Show("PORT 설정이 필요합니다.");
+                    //return;
+                    isPort = false;
                 }
 
                 if (ftpToken != null)
@@ -73,17 +80,43 @@ namespace VideoController
                     Common.FTP_PATH = ftpToken.ToString(); //obj[Common.KEY_FTP_PATH].ToString();
                     label4.Text = Common.FTP_PATH;
                     button13.Enabled = false;
+                    isFTP = true;
                 }
                 else
                 {
-                    MessageBox.Show("FTP 파일 저장경로 설정이 필요합니다.");
+                    isFTP = false;
+                    //MessageBox.Show("FTP 파일 저장경로 설정이 필요합니다.");
                 }
 
-                if (ip.Equals("") || port.Equals(""))
-                    button6.Enabled = false;
+                if(isIP && isPort)
+                {
+                    if (!openSocket())
+                    {
+                        removeIPPORT();
+                        textBox2.Text = "";
+                        textBox2.Enabled = true;
+                        textBox3.Text = "";
+                        textBox3.Enabled = true;
+                        button6.Enabled = true;
+                    }
+                    else
+                    {
+                        button6.Enabled = false;
+                    }
+                }
+                                
+                if(isIP && isPort && isFTP)
+                {
 
-                if(!this.ip.Equals("") && !this.port.Equals(""))
-                    openSocket();
+                }
+                else
+                {
+                    string ipStr = isIP == true ? "" : "IP ";
+                    string portStr = isPort ? "" : "PORT ";
+                    string ftpStr = isFTP ? "" : "FTP ";
+
+                    MessageBox.Show( ipStr + portStr + ftpStr + "설정이 필요합니다.");
+                }                                
             }
             else
             {
@@ -176,7 +209,10 @@ namespace VideoController
                 textBox2.Enabled = false;
                 textBox3.Enabled = false;
 
-                openSocket();
+                if (!openSocket())
+                {
+                    removeIPPORT();
+                }
             }
             else
             {
@@ -185,11 +221,33 @@ namespace VideoController
             }
         }
 
-        void openSocket()
+        public bool openSocket()
         {
-            SocketManager.getInstance().init(this.ip.ToString(), Int32.Parse(this.port));
             SocketManager.getInstance().f = this;
-            //this.label4.Text = SocketManager.getInstance().GetLocalIP();
+            return SocketManager.getInstance().init(this.ip.ToString(), Int32.Parse(this.port));
+            
+        }
+
+        public void removeIPPORT()
+        {
+            if (DialogResult.OK == MessageBox.Show("IP, PORT 확인이 필요합니다."))
+            {
+                FileInfo settingFile = new FileInfo(Common.SETTING_PATH);
+                JObject json = null;
+
+                if (settingFile.Exists)
+                {
+                    string settingStr = File.ReadAllText(Common.SETTING_PATH);
+                    json = JObject.Parse(settingStr);
+
+                    json.Remove(Common.KEY_IP);
+                    json.Remove(Common.KEY_PORT);
+
+                    StreamWriter sw = new StreamWriter(Common.SETTING_PATH, false);
+                    sw.Write(json.ToString());
+                    sw.Close();
+                }
+            }
         }
 
         private BackgroundWorker backgroundWorker1;
@@ -285,7 +343,7 @@ namespace VideoController
             {
                 if (uuid.Equals(info.uuid))
                 {
-                    if(current != max)
+                    if(current != max && max != 0)
                         info.progressData(current, max);
                     else
                         info.endDownLoad();
