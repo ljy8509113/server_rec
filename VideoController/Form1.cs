@@ -22,6 +22,13 @@ namespace VideoController
         string ip = "";
         List<ViewItem> viewerList = null;
 
+        public enum RELOAD_STATUS
+        {
+            ADD = 0,
+            UPDATE = 1,
+            REMOVE = 2
+        }
+
         public Form1()
         {
             InitializeComponent();
@@ -125,6 +132,8 @@ namespace VideoController
 
             backgroundWorker1 = new BackgroundWorker();
             backgroundWorker1.RunWorkerCompleted += new RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
+            backgroundWorker1.DoWork += new DoWorkEventHandler(this.worker_DoWork);
+            
 
             panel1.AutoScroll = true;
 
@@ -151,16 +160,22 @@ namespace VideoController
         {
             axWindowsMediaPlayer1.Ctlcontrols.stop();
         }
-
-        private void tabPage2_Click(object sender, EventArgs e)
-        {
-
-        }
+        
 
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
         {
 
         }
+
+        private void TabControl1_SelectedIndexChanged(Object sender, EventArgs e)
+        {
+            TabControl con = (TabControl)sender;
+            if(con.SelectedIndex == 1 && viewerList == null)
+            {
+                
+            }
+        }
+
 
         private void button6_Click(object sender, EventArgs e)
         {
@@ -251,48 +266,121 @@ namespace VideoController
         }
 
         private BackgroundWorker backgroundWorker1;
-
-        public void addConnectionInfo()
+        
+        void worker_DoWork(object sender, DoWorkEventArgs e)
         {
-            this.backgroundWorker1.RunWorkerAsync();
+            int value = (int)e.Argument;
+            e.Result = value;
         }
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            foreach (ConnectionInfo info in SocketManager.getInstance().listSocket)
+            lock(this) 
             {
-                bool isUsed = false;
-                foreach (ListViewItem i in this.listView1.Items)
+                List<ConnectionInfo> list = SocketManager.getInstance().listSocket;
+                Console.WriteLine("result : " + e.Result);
+
+                if (e.Result != null)
                 {
-                    if (i.Tag.Equals(info.uuid))
+                    int value = (int)e.Result;
+                    switch (value)
                     {
-                        isUsed = true;
-                        if (info.isDownloading)
-                        {
-                            i.SubItems[2].Text = info.getDownMsg();
-                        }
-                        else
-                        {
-                            i.Tag = info.uuid;
-                            i.SubItems[0].Text = info.name;
-                            i.SubItems[1].Text = (info.isTeacher == true ? "선생님" : "학생");
-                            i.SubItems[2].Text = info.status;//(info.socket.Connected == true ? "연결" : "해제");
-                        }
-                        break;
+                        case (int)RELOAD_STATUS.ADD:
+                            {
+                                foreach (ConnectionInfo info in list)
+                                {
+                                    bool isUsed = false;
+                                    foreach (ListViewItem i in this.listView1.Items)
+                                    {
+                                        if (i.Tag.Equals(info.uuid))
+                                        {
+                                            isUsed = true;
+                                            if (info.isDownloading)
+                                            {
+                                                i.SubItems[2].Text = info.getDownMsg();
+                                            }
+                                            else
+                                            {
+                                                i.Tag = info.uuid;
+                                                i.SubItems[0].Text = info.name;
+                                                i.SubItems[1].Text = (info.isTeacher == true ? "선생님" : "학생");
+                                                i.SubItems[2].Text = info.status;//(info.socket.Connected == true ? "연결" : "해제");
+                                            }
+                                            break;
+                                        }
+                                    }
+
+                                    if (!isUsed)
+                                    {
+                                        ListViewItem item = new ListViewItem(info.name);
+                                        item.Tag = info.uuid;
+                                        item.SubItems.Add((info.isTeacher == true ? "선생님" : "학생"));
+                                        item.SubItems.Add(info.status);//item.SubItems.Add((info.socket.Connected == true ? "연결" : "해제"));
+                                        AddItem(item, this.listView1);
+                                    }
+                                }
+
+                            }
+                            break;
+                        case (int)RELOAD_STATUS.UPDATE:
+                            {
+                                foreach (ConnectionInfo info in list)
+                                {
+                                    foreach (ListViewItem i in this.listView1.Items)
+                                    {
+                                        if (i.Tag.Equals(info.uuid))
+                                        {
+                                            if (info.isDownloading)
+                                            {
+                                                i.SubItems[2].Text = info.getDownMsg();
+                                            }
+                                            else
+                                            {
+                                                i.Tag = info.uuid;
+                                                i.SubItems[0].Text = info.name;
+                                                i.SubItems[1].Text = (info.isTeacher == true ? "선생님" : "학생");
+                                                i.SubItems[2].Text = info.status;//(info.socket.Connected == true ? "연결" : "해제");
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            break;
+                        case (int)RELOAD_STATUS.REMOVE:
+                            {
+                                if (list == null || list.Count == 0)
+                                {
+                                    for (int i = this.listView1.Items.Count - 1; i >= 0; i--)
+                                    {
+                                        this.listView1.Items[i].Remove();
+                                    }
+                                }
+                                else
+                                {
+                                    for (int i = this.listView1.Items.Count - 1; i >= 0; i--)
+                                    {
+                                        ListViewItem item = this.listView1.Items[i];
+                                        bool isUsed = false;
+                                        for (int j = list.Count - 1; j >= 0; j--)
+                                        {
+                                            if (item.Tag.Equals(list[j].uuid))
+                                            {
+                                                isUsed = true;
+                                            }
+                                        }
+
+                                        if (isUsed == false)
+                                            this.listView1.Items[i].Remove();
+                                    }
+                                }
+                            }
+                            break;
                     }
                 }
 
-                if (!isUsed)
-                {
-                    ListViewItem item = new ListViewItem(info.name);
-                    item.Tag = info.uuid;
-                    item.SubItems.Add((info.isTeacher == true ? "선생님" : "학생"));
-                    item.SubItems.Add(info.status);//item.SubItems.Add((info.socket.Connected == true ? "연결" : "해제"));
-                    AddItem(item, this.listView1);
-
-                }
+                this.listView1.EndUpdate();
             }
-            this.listView1.EndUpdate();
+            
         }
 
         delegate void AddListCallback(ListViewItem item, ListView v);
@@ -309,69 +397,12 @@ namespace VideoController
                 v.Items.Add(item);
             }
         }
-
-        public void updateProgress(string uuid, int progress, int current, int max, string fileName)
+        
+        public void reLoadView(RELOAD_STATUS status)
         {
-            //foreach (ConnectionInfo info in _listInfo)
-            //{
-            //    if (uuid.Equals(info.uuid))
-            //    {
-            //        if (!info.isDownloading)
-            //        {
-            //            info.sendFile(true, fileName);
-            //        }
-            //        else
-            //        {
-            //            if (progress == 100 && current == max)
-            //            {
-            //                info.endDownLoad();
-            //            }
-            //            else
-            //            {
-            //                info.progressData(current, progress, max);
-            //            }
-            //        }
-            //    }
-            //}
-
-            //this.backgroundWorker1.RunWorkerAsync();
+            this.backgroundWorker1.RunWorkerAsync(status);
         }
-
-        public void updateMovieCount(int current, int max, string uuid)
-        {
-            foreach(ConnectionInfo info in SocketManager.getInstance().listSocket)
-            {
-                if (uuid.Equals(info.uuid))
-                {
-                    if(current != max && max != 0)
-                        info.progressData(current, max);
-                    else
-                        info.endDownLoad();
-                }
-            }
-            this.backgroundWorker1.RunWorkerAsync();
-        }
-
-        //public void removeItem(string uuid)
-        //{
-        //    for (int i = 0; i < SocketManager.getInstance().listSocket.Count; i++)
-        //    {
-        //        _listInfo.RemoveAt(i);
-        //        break;
-        //    }
-
-        //    for (int i = 0; i < this.listView1.Items.Count; i++)
-        //    {
-        //        if (this.listView1.Items[i].SubItems[1].Text.Equals(uuid))
-        //        {
-        //            this.listView1.Items.RemoveAt(i);
-        //            break;
-        //        }
-        //    }
-        //    this.listView1.EndUpdate();
-
-        //}
-
+        
         bool isDownloading()
         {
             foreach (ConnectionInfo info in SocketManager.getInstance().listSocket)
@@ -394,7 +425,8 @@ namespace VideoController
                 JObject json = new JObject();
                 json.Add("id", "recode");
                 SocketManager.getInstance().sendMessage(json.ToString(), null);
-            }            
+            }
+
         }
 
         private void button5_Click(object sender, EventArgs e)
@@ -416,14 +448,14 @@ namespace VideoController
            
             foreach (ConnectionInfo info in SocketManager.getInstance().listSocket)
             {
-                if (!info.isDownloading)
-                {
+                //if (!info.isDownloading)
+                //{
                     info.sendFile(true);
                     SocketManager.getInstance().sendMessage(json.ToString(), null);
-                }                
+                //}                
             }
 
-            this.backgroundWorker1.RunWorkerAsync();            
+            this.backgroundWorker1.RunWorkerAsync(RELOAD_STATUS.UPDATE);            
         }
 
         private void button8_Click(object sender, EventArgs e)
@@ -434,7 +466,8 @@ namespace VideoController
                 openFileDialog.InitialDirectory = Common.FTP_PATH;
             if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                this.textBox4.Text = openFileDialog.FileName;
+                //this.textBox4.Text = openFileDialog.FileName;
+                this.label5.Text = openFileDialog.FileName;
                 axWindowsMediaPlayer1.URL = openFileDialog.FileName;
                 axWindowsMediaPlayer1.settings.volume = 100;
                 axWindowsMediaPlayer1.Ctlcontrols.stop();
@@ -452,7 +485,7 @@ namespace VideoController
                 }
                 else
                 {
-                    addViewer(viewerList.Count * viewerList[0].height);
+                    addViewer(viewerList.Count * viewerList[0].Width);
                 }
             }
             else
@@ -462,12 +495,18 @@ namespace VideoController
             }
         }
 
-        void addViewer(int y)
+        public void openMovie(int index, String name)
+        {
+            Console.WriteLine("openMovie : " + index + name);
+        }
+
+        void addViewer(int x)
         {
             ViewItem v = new ViewItem();
             panel1.Controls.Add(v);
-            v.init(y);
+            v.init(x, viewerList.Count+1);
             v.Tag = viewerList.Count + "h";
+            v.openDelegate += openMovie;
             viewerList.Add(v);
         }
 
@@ -565,23 +604,25 @@ namespace VideoController
 
         public void changeStatus(string status)
         {
-            foreach (ConnectionInfo info in SocketManager.getInstance().listSocket)
-            {
-                info.status = status;
-            }
-
-            this.backgroundWorker1.RunWorkerAsync();
+            changeStatus(status, null);
         }
 
         public void changeStatus(string status, string uuid)
         {
             foreach (ConnectionInfo info in SocketManager.getInstance().listSocket)
             {
-                if(uuid.Equals(info.uuid))
+                if (uuid == null)
+                {
                     info.status = status;
+                }
+                else
+                {
+                    if (uuid.Equals(info.uuid))
+                        info.status = status;
+                }
             }
 
-            this.backgroundWorker1.RunWorkerAsync();
+            this.backgroundWorker1.RunWorkerAsync(RELOAD_STATUS.UPDATE);
         }
 
         private void button14_Click(object sender, EventArgs e)

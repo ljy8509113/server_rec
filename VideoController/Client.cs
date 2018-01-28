@@ -48,6 +48,7 @@ namespace VideoController
 
                     if (Disconnected != null)
                     {
+                        Console.WriteLine("1 des");
                         Disconnected(this);
                     }
                 }
@@ -66,7 +67,6 @@ namespace VideoController
             }
             catch (SocketException se)
             {
-                Console.WriteLine(se.Message.ToString());
                 Close();
 
                 switch (se.SocketErrorCode)
@@ -77,6 +77,7 @@ namespace VideoController
 
                         if (Disconnected != null)
                         {
+                            Console.WriteLine("SocketException" + se.Message.ToString());
                             Disconnected(this);
                         }
                         break;
@@ -84,11 +85,10 @@ namespace VideoController
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message.ToString());
                 Close();
-
                 if (Disconnected != null)
                 {
+                    Console.WriteLine("Exception" + ex.Message.ToString());
                     Disconnected(this);
                 }
             }

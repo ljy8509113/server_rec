@@ -27,7 +27,7 @@ namespace VideoController
 
         public bool isDownloading = false;
         public int current = 0;
-        //public int progress = 0;
+        public int progress = 0;
         public int max = 0;
 
         public void sendFile(bool isDown)
@@ -35,10 +35,10 @@ namespace VideoController
             this.isDownloading = isDown;
         }
 
-        public void progressData(int current, int max)
+        public void progressData(int current, int max, int progress)
         {
             this.current = current;
-            //this.progress = progress;
+            this.progress = progress;
             this.max = max;
         }
 
@@ -56,7 +56,7 @@ namespace VideoController
             {               
                 status = "전송중";
                 //return "동영상 가져오는 중("+current +"/"+ max+")";//"전송중 (" + current + "/" + max + " : " + progress + "%)";    
-                return "동영상 가져오는 중";//"전송중 (" + current + "/" + max + " : " + progress + "%)";                  
+                return "전송중 (" + current + "/" + max + " : " + progress + "%)";                  
             }
             else
             {

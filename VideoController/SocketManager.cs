@@ -104,7 +104,9 @@ namespace VideoController
                 Client client = listSocket[i].client as Client;
                 if (client.ID == sender.ID)
                 {
+                    Console.WriteLine("client_Disconnected");
                     listSocket.RemoveAt(i);
+                    f.reLoadView(Form1.RELOAD_STATUS.REMOVE);
                     break;
                 }
             }
@@ -113,76 +115,163 @@ namespace VideoController
 
         void client_Received(Client sender, byte[] data)
         {
-            for (int i = 0; i < listSocket.Count; i++)
+            lock (this)
             {
-                Client client = listSocket[i].client as Client;
-
-                if (client.ID == sender.ID)
+                for (int i = 0; i < listSocket.Count; i++)
                 {
-                    string stringbyte = "";
+                    Client client = listSocket[i].client as Client;
 
-                    try
+                    if (client.ID == sender.ID)
                     {
-                        stringbyte = Encoding.UTF8.GetString(data, 0, data.Length);
-                    }
-                    catch (ArgumentException e)
-                    {
-                        Console.WriteLine("ArgumentException : "+ e);
-                    }
-                    
+                        string stringbyte = "";
 
-                    JObject obj = JObject.Parse(stringbyte);
-                    Console.WriteLine("json : {0}", obj);
-                    Console.WriteLine(obj["identifier"].ToString());
+                        try
+                        {
+                            stringbyte = Encoding.UTF8.GetString(data, 0, data.Length);
+                        }
+                        catch (ArgumentException e)
+                        {
+                            Console.WriteLine("ArgumentException : " + e);
+                        }
 
-                    if (obj["identifier"].ToString().Equals("user_info"))
-                    {
-                        string name = obj["name"].ToString();
-                        bool isTeacher = obj["user"].ToString().Equals("T") ? true : false;
-                        string uuid = obj["device_id"].ToString();
-                        Console.WriteLine("name : " + name + "  //  isTeacher : " + isTeacher + "  //  uuid : " + uuid);
+                        String[] strArray = stringbyte.Split('}');
 
-                        listSocket[i].setData(name, uuid, isTeacher, "접속중");
-                        instance.f.addConnectionInfo();
-                    }
-                    else if (obj["identifier"].ToString().Equals("progress"))
-                    {
-                        //int persent = int.Parse(obj["persent"].ToString());
-                        //int max = int.Parse(obj["max"].ToString());
-                        //int current = int.Parse(obj["current"].ToString());
-                        //string fileName = obj["name"].ToString();
-                        //string uuid = obj["device_id"].ToString();
-                        //Console.WriteLine("progress : " + persent + " // " + fileName + "  //  uuid : " + uuid);
-                        //instance.f.updateProgress(uuid, persent, current, max, fileName);
-                    }
-                    else if (obj["identifier"].ToString().Equals("downEnd"))
-                    {
-                        int max = int.Parse(obj["max"].ToString());
-                        int current = int.Parse(obj["current"].ToString());
-                        string uuid = obj["device_id"].ToString();
-                        string fileName = obj["name"].ToString();
-                        Console.WriteLine("current : " + current + " // max : " + max);
-                        //instance.f.updateProgress(uuid, 100, current, max, fileName);
-                        instance.f.updateMovieCount(current, max, uuid);                                               
-                    }
-                    else if (obj["identifier"].ToString().Equals("recode"))
-                    {
-                        string uuid = obj["device_id"].ToString();
-                        Console.WriteLine("recode : " + uuid);
+                        for(int j = 0; j<strArray.Length; j++)
+                        {
+                            strArray[j] += "}";
 
-                        f.changeStatus("녹화중",uuid);
+                            try
+                            {
+                                JObject obj = JObject.Parse(strArray[j]);
+                                Console.WriteLine("json : {0}", obj);
+                                Console.WriteLine(obj["identifier"].ToString());
+
+                                if (obj["identifier"].ToString().Equals("user_info"))
+                                {
+                                    string name = obj["name"].ToString();
+                                    bool isTeacher = obj["user"].ToString().Equals("T") ? true : false;
+                                    string uuid = obj["device_id"].ToString();
+                                    Console.WriteLine("name : " + name + "  //  isTeacher : " + isTeacher + "  //  uuid : " + uuid);
+
+                                    listSocket[i].setData(name, uuid, isTeacher, "접속중");
+                                    instance.f.reLoadView(Form1.RELOAD_STATUS.ADD);
+                                }
+                                else if (obj["identifier"].ToString().Equals("progress"))
+                                {
+                                    Console.WriteLine("1");
+                                    int persent = int.Parse(obj["persent"].ToString());
+                                    Console.WriteLine("2");
+                                    int max = int.Parse(obj["max"].ToString());
+                                    Console.WriteLine("3");
+                                    int current = int.Parse(obj["current"].ToString());
+                                    Console.WriteLine("4");
+                                    string fileName = obj["name"].ToString();
+                                    Console.WriteLine("5");
+                                    string uuid = obj["device_id"].ToString();
+                                    Console.WriteLine("progress : " + persent + " // " + fileName + "  //  uuid : " + uuid);
+                                    //f.updateProgress(uuid, persent, current, max, fileName);
+
+                                    foreach (ConnectionInfo info in listSocket)
+                                    {
+                                        if (info.uuid.Equals(uuid))
+                                        {
+                                            if (!info.isDownloading)
+                                            {
+                                                info.sendFile(true);
+                                            }
+                                            else
+                                            {
+                                                info.progressData(current, max, persent);
+                                            }
+                                            break;
+                                        }
+                                    }
+                                    Console.WriteLine("6");
+                                    f.reLoadView(Form1.RELOAD_STATUS.UPDATE);
+                                    Console.WriteLine("7");
+                                }
+                                else if (obj["identifier"].ToString().Equals("downEnd"))
+                                {
+                                    int max = int.Parse(obj["max"].ToString());
+                                    int current = int.Parse(obj["current"].ToString());
+                                    string uuid = obj["device_id"].ToString();
+                                    string fileName = obj["name"].ToString();
+                                    Console.WriteLine("current : " + current + " // max : " + max);
+                                    //instance.f.updateProgress(uuid, 100, current, max, fileName);
+
+                                    if(current == max)
+                                    {
+                                        foreach (ConnectionInfo info in listSocket)
+                                        {
+                                            if (uuid.Equals(info.uuid))
+                                            {
+                                                setDirInMovie();
+                                                info.endDownLoad();
+                                                f.reLoadView(Form1.RELOAD_STATUS.UPDATE);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    
+                                    //f.updateMovieCount(current, max, uuid);                                               
+                                }
+                                else if (obj["identifier"].ToString().Equals("recode"))
+                                {
+                                    string uuid = obj["device_id"].ToString();
+                                    Console.WriteLine("recode : " + uuid);
+
+                                    f.changeStatus("녹화중", uuid);
+                                }
+                                else if (obj["identifier"].ToString().Equals("stop"))
+                                {
+                                    string uuid = obj["device_id"].ToString();
+                                    Console.WriteLine("stop : " + uuid);
+
+                                    f.changeStatus("접속중", uuid);
+                                }
+
+                                break;
+                            }
+                            catch (Exception e)
+                            {
+
+                            }
+
+                        }
                     }
-                    else if (obj["identifier"].ToString().Equals("stop"))
+                }
+            }         
+        }
+
+        public void setDirInMovie()
+        {
+            string [] fileNames = Directory.GetFiles(Common.FTP_PATH);
+            
+            foreach(string s in fileNames){
+                string extension = Path.GetExtension(s);
+                if (extension.Equals(".mp4"))
+                {
+                    string fileName = Path.GetFileNameWithoutExtension(s);
+                    string dateStr = fileName.Split('_')[0];
+                    string dir = Path.GetDirectoryName(s);
+
+                    DirectoryInfo di = new DirectoryInfo(dir + "\\" + dateStr);
+                    if (di.Exists == false)
                     {
-                        string uuid = obj["device_id"].ToString();
-                        Console.WriteLine("stop : " + uuid);
-                        
-                        f.changeStatus("접속중", uuid);
+                        di.Create();
                     }
 
-                    break;
+                    FileInfo fileMove = new FileInfo(s);
+                    if (fileMove.Exists) // 파일이 있는지
+                    {                       
+                        fileMove.MoveTo((dir + "\\" + dateStr + "\\" + Path.GetFileName(s))); // 이미있으면 에러
+                    }
+
+
                 }
             }
+
+            
 
         }
 
