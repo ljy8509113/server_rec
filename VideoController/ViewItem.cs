@@ -19,12 +19,14 @@ namespace VideoController
         public int height = 357;
         int width = 418;
         private int index;
+        string path = "";
 
         public OpenMovie openDelegate;
         
         
-        public void init(int x, int index)
+        public void init(int x, int index, string path)
         {
+            this.path = path;
             SetBounds(x, 0, width, height);
             this.index = index;
             //txtTitle = new TextBox();
@@ -39,7 +41,7 @@ namespace VideoController
             buttonOpen.SetBounds(width - 75, 10, 75, 23);
             buttonOpen.Text = "Open";
             buttonOpen.Click += new EventHandler(button_Click);
-            Controls.Add(buttonOpen);
+            //Controls.Add(buttonOpen);
             
             player = new AxWMPLib.AxWindowsMediaPlayer();
             int y = buttonOpen.Height + 13;
@@ -47,7 +49,27 @@ namespace VideoController
             player.Enabled = true;
             player.Enter += new System.EventHandler(this.axWindowsMediaPlayer1_Enter);
             Controls.Add(player);
+
+            if (!path.Equals(""))
+            {
+                openFile(this.path);
+            }
             
+        }
+
+        void openFile(string path)
+        {
+            this.path = path;
+            String name = Path.GetFileName(Path.GetFileName(this.path));
+            //this.txtTitle.Text = openFileDialog.FileName;
+            labelTitle.Text = name;
+
+            player.URL = path;
+            player.settings.volume = 100;
+            player.Ctlcontrols.stop();
+
+            if(openDelegate != null)
+                openDelegate(this.index, name);
         }
 
         private void button_Click(object sender, EventArgs e)
@@ -60,16 +82,7 @@ namespace VideoController
 
             if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
-                path = openFileDialog.FileName;
-                String name = Path.GetFileName(openFileDialog.FileName);
-                //this.txtTitle.Text = openFileDialog.FileName;
-                labelTitle.Text = name;
-
-                player.URL = path;
-                player.settings.volume = 100;
-                player.Ctlcontrols.stop();
-
-                openDelegate(this.index, name);
+                openFile(openFileDialog.FileName);
             }
 
             //player.URL = txtTitle.Text;

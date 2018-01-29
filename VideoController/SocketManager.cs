@@ -266,8 +266,6 @@ namespace VideoController
                     {                       
                         fileMove.MoveTo((dir + "\\" + dateStr + "\\" + Path.GetFileName(s))); // 이미있으면 에러
                     }
-
-
                 }
             }
 

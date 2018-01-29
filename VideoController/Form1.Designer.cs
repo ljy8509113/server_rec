@@ -28,8 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            this.axWindowsMediaPlayer1 = new AxWMPLib.AxWindowsMediaPlayer();
             this.button1 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
@@ -49,31 +47,21 @@
             this.listView1 = new System.Windows.Forms.ListView();
             this.label1 = new System.Windows.Forms.Label();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.button14 = new System.Windows.Forms.Button();
-            this.button12 = new System.Windows.Forms.Button();
-            this.button11 = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.button11 = new System.Windows.Forms.Button();
+            this.button12 = new System.Windows.Forms.Button();
+            this.listView2 = new System.Windows.Forms.ListView();
+            this.label5 = new System.Windows.Forms.Label();
+            this.button14 = new System.Windows.Forms.Button();
             this.button10 = new System.Windows.Forms.Button();
             this.button9 = new System.Windows.Forms.Button();
             this.button8 = new System.Windows.Forms.Button();
-            this.label5 = new System.Windows.Forms.Label();
-            this.listView2 = new System.Windows.Forms.ListView();
-            this.panel2 = new System.Windows.Forms.Panel();
-            ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).BeginInit();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.panel2.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // axWindowsMediaPlayer1
-            // 
-            this.axWindowsMediaPlayer1.Enabled = true;
-            this.axWindowsMediaPlayer1.Location = new System.Drawing.Point(17, 35);
-            this.axWindowsMediaPlayer1.Name = "axWindowsMediaPlayer1";
-            this.axWindowsMediaPlayer1.OcxState = ((System.Windows.Forms.AxHost.State)(resources.GetObject("axWindowsMediaPlayer1.OcxState")));
-            this.axWindowsMediaPlayer1.Size = new System.Drawing.Size(583, 412);
-            this.axWindowsMediaPlayer1.TabIndex = 0;
             // 
             // button1
             // 
@@ -270,7 +258,6 @@
             this.tabPage2.Controls.Add(this.button10);
             this.tabPage2.Controls.Add(this.button9);
             this.tabPage2.Controls.Add(this.button8);
-            this.tabPage2.Controls.Add(this.axWindowsMediaPlayer1);
             this.tabPage2.Location = new System.Drawing.Point(4, 22);
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
@@ -278,6 +265,64 @@
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "VIEW";
             this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // panel1
+            // 
+            this.panel1.BackColor = System.Drawing.Color.Transparent;
+            this.panel1.Location = new System.Drawing.Point(0, 502);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(1255, 383);
+            this.panel1.TabIndex = 6;
+            // 
+            // panel2
+            // 
+            this.panel2.BackColor = System.Drawing.Color.DarkGray;
+            this.panel2.Controls.Add(this.button11);
+            this.panel2.Controls.Add(this.button12);
+            this.panel2.Location = new System.Drawing.Point(0, 459);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(1255, 431);
+            this.panel2.TabIndex = 12;
+            // 
+            // button11
+            // 
+            this.button11.Location = new System.Drawing.Point(1133, 3);
+            this.button11.Name = "button11";
+            this.button11.Size = new System.Drawing.Size(48, 38);
+            this.button11.TabIndex = 7;
+            this.button11.Text = "추가";
+            this.button11.UseVisualStyleBackColor = true;
+            this.button11.Visible = false;
+            this.button11.Click += new System.EventHandler(this.button11_Click);
+            // 
+            // button12
+            // 
+            this.button12.Location = new System.Drawing.Point(1197, 3);
+            this.button12.Name = "button12";
+            this.button12.Size = new System.Drawing.Size(46, 38);
+            this.button12.TabIndex = 8;
+            this.button12.Text = "제거";
+            this.button12.UseVisualStyleBackColor = true;
+            this.button12.Visible = false;
+            this.button12.Click += new System.EventHandler(this.button12_Click);
+            // 
+            // listView2
+            // 
+            this.listView2.Location = new System.Drawing.Point(639, 35);
+            this.listView2.Name = "listView2";
+            this.listView2.Size = new System.Drawing.Size(387, 348);
+            this.listView2.TabIndex = 11;
+            this.listView2.UseCompatibleStateImageBehavior = false;
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Font = new System.Drawing.Font("굴림", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
+            this.label5.Location = new System.Drawing.Point(14, 13);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(49, 16);
+            this.label5.TabIndex = 10;
+            this.label5.Text = "label5";
             // 
             // button14
             // 
@@ -288,34 +333,6 @@
             this.button14.Text = "전체 일시 정지";
             this.button14.UseVisualStyleBackColor = true;
             this.button14.Click += new System.EventHandler(this.button14_Click);
-            // 
-            // button12
-            // 
-            this.button12.Location = new System.Drawing.Point(1197, 3);
-            this.button12.Name = "button12";
-            this.button12.Size = new System.Drawing.Size(46, 38);
-            this.button12.TabIndex = 8;
-            this.button12.Text = "제거";
-            this.button12.UseVisualStyleBackColor = true;
-            this.button12.Click += new System.EventHandler(this.button12_Click);
-            // 
-            // button11
-            // 
-            this.button11.Location = new System.Drawing.Point(1133, 3);
-            this.button11.Name = "button11";
-            this.button11.Size = new System.Drawing.Size(48, 38);
-            this.button11.TabIndex = 7;
-            this.button11.Text = "추가";
-            this.button11.UseVisualStyleBackColor = true;
-            this.button11.Click += new System.EventHandler(this.button11_Click);
-            // 
-            // panel1
-            // 
-            this.panel1.BackColor = System.Drawing.Color.Transparent;
-            this.panel1.Location = new System.Drawing.Point(0, 502);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(1255, 383);
-            this.panel1.TabIndex = 6;
             // 
             // button10
             // 
@@ -345,35 +362,8 @@
             this.button8.TabIndex = 3;
             this.button8.Text = "OPEN";
             this.button8.UseVisualStyleBackColor = true;
+            this.button8.Visible = false;
             this.button8.Click += new System.EventHandler(this.button8_Click);
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Font = new System.Drawing.Font("굴림", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(129)));
-            this.label5.Location = new System.Drawing.Point(14, 13);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(49, 16);
-            this.label5.TabIndex = 10;
-            this.label5.Text = "label5";
-            // 
-            // listView2
-            // 
-            this.listView2.Location = new System.Drawing.Point(639, 35);
-            this.listView2.Name = "listView2";
-            this.listView2.Size = new System.Drawing.Size(387, 348);
-            this.listView2.TabIndex = 11;
-            this.listView2.UseCompatibleStateImageBehavior = false;
-            // 
-            // panel2
-            // 
-            this.panel2.BackColor = System.Drawing.Color.DarkGray;
-            this.panel2.Controls.Add(this.button11);
-            this.panel2.Controls.Add(this.button12);
-            this.panel2.Location = new System.Drawing.Point(0, 459);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(1255, 431);
-            this.panel2.TabIndex = 12;
             // 
             // Form1
             // 
@@ -387,7 +377,6 @@
             this.Controls.Add(this.button1);
             this.Name = "Form1";
             this.Text = "Form1";
-            ((System.ComponentModel.ISupportInitialize)(this.axWindowsMediaPlayer1)).EndInit();
             this.tabControl1.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.tabPage1.PerformLayout();

@@ -21,6 +21,8 @@ namespace VideoController
         string port = "";
         string ip = "";
         List<ViewItem> viewerList = null;
+        List<string> teacherMovieList = new List<string>();
+        List<string> studentMovieList = new List<string>();
 
         public enum RELOAD_STATUS
         {
@@ -37,6 +39,8 @@ namespace VideoController
             //this.listView1.Columns.Add("UUID", 200);
             this.listView1.Columns.Add("User", 120);
             this.listView1.Columns.Add("상태", 200);
+
+            this.listView2.Columns.Add("동영상 경로",300);
 
             FileInfo protFile = new FileInfo(Common.SETTING_PATH);
             if (protFile.Exists)
@@ -170,12 +174,75 @@ namespace VideoController
         private void TabControl1_SelectedIndexChanged(Object sender, EventArgs e)
         {
             TabControl con = (TabControl)sender;
-            if(con.SelectedIndex == 1 && viewerList == null)
+            
+            if (con.SelectedIndex == 1 && viewerList == null)
             {
-                
+                List<string> pathList = new List<string>();
+                string[] dirs = Directory.GetDirectories(Common.FTP_PATH);
+                foreach (string s in dirs)
+                {
+                    string name = Path.GetFileName(s);
+                    DateTime dt;
+                    try
+                    {
+                        dt = Convert.ToDateTime(name);
+                        Console.WriteLine(dt);
+                        pathList.Add(s);
+                    }
+                    catch (Exception error)
+                    {
+                        continue;
+                    }
+                }
+
+                if (pathList.Count > 0)
+                {
+                    pathList.Reverse();
+                    string dir = pathList[0];
+                    settingMovie(dir);
+                }
             }
         }
 
+        void settingMovie(string path)
+        {
+            string[] fileNames = Directory.GetFiles(path);
+            foreach (string dirFile in fileNames)
+            {
+                string[] results = Path.GetFileNameWithoutExtension(dirFile).Split('@');
+                if (results[1].Equals("teacher"))
+                {
+                    teacherMovieList.Add(dirFile);
+                }
+                else
+                {
+                    studentMovieList.Add(dirFile);
+                }
+            }
+
+            teacherMovieList.Sort();
+            studentMovieList.Sort();
+
+            foreach (string s in teacherMovieList)
+            {
+                ListViewItem item = new ListViewItem(s);
+                item.Tag = s;
+                AddItem(item, this.listView2);
+            }
+
+            viewerList = new List<ViewItem>();
+            for(int i=0; i< studentMovieList.Count; i++)
+            {
+                if (i == 0)
+                    addViewer(i, studentMovieList[i]);
+                else
+                    addViewer(i * viewerList[0].Width, studentMovieList[i]);
+                ListViewItem item = new ListViewItem(studentMovieList[i]);
+                item.Tag = studentMovieList[i];
+                AddItem(item, this.listView2);
+            }
+            
+        }
 
         private void button6_Click(object sender, EventArgs e)
         {
@@ -485,13 +552,13 @@ namespace VideoController
                 }
                 else
                 {
-                    addViewer(viewerList.Count * viewerList[0].Width);
+                    addViewer(viewerList.Count * viewerList[0].Width, "");
                 }
             }
             else
             {
                 viewerList = new List<ViewItem>();
-                addViewer(0);
+                addViewer(0, "");
             }
         }
 
@@ -500,11 +567,11 @@ namespace VideoController
             Console.WriteLine("openMovie : " + index + name);
         }
 
-        void addViewer(int x)
+        void addViewer(int x, string path)
         {
             ViewItem v = new ViewItem();
             panel1.Controls.Add(v);
-            v.init(x, viewerList.Count+1);
+            v.init(x, viewerList.Count+1, path);
             v.Tag = viewerList.Count + "h";
             v.openDelegate += openMovie;
             viewerList.Add(v);
