@@ -35,8 +35,7 @@ namespace VideoController
             progress.Size = new Size(100, 30);
             progress.MarqueeAnimationSpeed = 30;
             progress.Style = ProgressBarStyle.Marquee;
-            this.Controls.Add(progress);
-
+            
             backPanel.SetBounds(this.Bounds.X, this.Bounds.Y, this.Bounds.Width, this.Bounds.Height);
             this.Controls.Add(backPanel);
             this.Controls.Add(progress);
