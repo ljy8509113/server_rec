@@ -35,12 +35,14 @@ namespace VideoController
         {
             InitializeComponent();
 
+            LoadingView.Instance(this).show();
+
             this.listView1.Columns.Add("디바이스 이름", 200);
             //this.listView1.Columns.Add("UUID", 200);
             this.listView1.Columns.Add("User", 120);
             this.listView1.Columns.Add("상태", 200);
 
-            this.listView2.Columns.Add("동영상 경로",300);
+            this.listView2.Columns.Add("동영상 리스트", this.listView2.Width-3);
 
             FileInfo protFile = new FileInfo(Common.SETTING_PATH);
             if (protFile.Exists)
@@ -203,47 +205,7 @@ namespace VideoController
                 }
             }
         }
-
-        void settingMovie(string path)
-        {
-            string[] fileNames = Directory.GetFiles(path);
-            foreach (string dirFile in fileNames)
-            {
-                string[] results = Path.GetFileNameWithoutExtension(dirFile).Split('@');
-                if (results[1].Equals("teacher"))
-                {
-                    teacherMovieList.Add(dirFile);
-                }
-                else
-                {
-                    studentMovieList.Add(dirFile);
-                }
-            }
-
-            teacherMovieList.Sort();
-            studentMovieList.Sort();
-
-            foreach (string s in teacherMovieList)
-            {
-                ListViewItem item = new ListViewItem(s);
-                item.Tag = s;
-                AddItem(item, this.listView2);
-            }
-
-            viewerList = new List<ViewItem>();
-            for(int i=0; i< studentMovieList.Count; i++)
-            {
-                if (i == 0)
-                    addViewer(i, studentMovieList[i]);
-                else
-                    addViewer(i * viewerList[0].Width, studentMovieList[i]);
-                ListViewItem item = new ListViewItem(studentMovieList[i]);
-                item.Tag = studentMovieList[i];
-                AddItem(item, this.listView2);
-            }
-            
-        }
-
+        
         private void button6_Click(object sender, EventArgs e)
         {
             string ipAddr = textBox3.Text;
@@ -344,11 +306,11 @@ namespace VideoController
         {
             lock(this) 
             {
-                List<ConnectionInfo> list = SocketManager.getInstance().listSocket;
-                Console.WriteLine("result : " + e.Result);
-
                 if (e.Result != null)
                 {
+                    List<ConnectionInfo> list = SocketManager.getInstance().listSocket;
+                    Console.WriteLine("result : " + e.Result);
+
                     int value = (int)e.Result;
                     switch (value)
                     {
@@ -443,9 +405,13 @@ namespace VideoController
                             }
                             break;
                     }
+                    this.listView1.EndUpdate();
                 }
-
-                this.listView1.EndUpdate();
+                else
+                {
+                    this.listView2.EndUpdate();
+                }
+                
             }
             
         }
@@ -552,13 +518,13 @@ namespace VideoController
                 }
                 else
                 {
-                    addViewer(viewerList.Count * viewerList[0].Width, "");
+                    addViewer(viewerList.Count * viewerList[0].Width, null);
                 }
             }
             else
             {
                 viewerList = new List<ViewItem>();
-                addViewer(0, "");
+                addViewer(0, null);
             }
         }
 
@@ -567,11 +533,12 @@ namespace VideoController
             Console.WriteLine("openMovie : " + index + name);
         }
 
-        void addViewer(int x, string path)
+        void addViewer(int x, List<string> arrayPath)
         {
             ViewItem v = new ViewItem();
             panel1.Controls.Add(v);
-            v.init(x, viewerList.Count+1, path);
+            arrayPath.Sort();
+            v.init(x, panel1.Bounds.Height, viewerList.Count+1, arrayPath);
             v.Tag = viewerList.Count + "h";
             v.openDelegate += openMovie;
             viewerList.Add(v);
@@ -708,7 +675,124 @@ namespace VideoController
             }            
         }
 
-        
+        private void button15_Click(object sender, EventArgs e)
+        {
+            //열기
+            FolderBrowserDialog open = new FolderBrowserDialog();
+            
+            if(open.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                Console.WriteLine(open.SelectedPath);
+                teacherMovieList.Clear();
+                studentMovieList.Clear();
+
+                for (int i = this.listView2.Items.Count - 1; i >= 0; i--)
+                {
+                    this.listView2.Items[i].Remove();
+                }
+
+                for (int i=viewerList.Count-1; i>= 0; i--)
+                {
+                    viewerList[i].remove(panel1);
+                }
+                settingMovie(open.SelectedPath);
+            }
+
+            //OpenDeDialog openFileDialog = new OpenFileDialog();
+            //if (openFileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            //{
+            //    //openFile(openFileDialog.FileName);
+            //    Console.WriteLine(openFileDialog.FileName);
+            //    settingMovie(openFileDialog.FileName);
+            //}
+        }
+
+        void settingMovie(string path)
+        {
+            string[] fileNames = Directory.GetFiles(path);
+            foreach (string dirFile in fileNames)
+            {
+                string[] results = Path.GetFileNameWithoutExtension(dirFile).Split('@');
+                if (results[1].Equals("teacher"))
+                {
+                    teacherMovieList.Add(dirFile);
+                }
+                else
+                {
+                    studentMovieList.Add(dirFile);
+                }
+            }
+
+            
+            if(teacherMovieList != null && teacherMovieList.Count > 0)
+            {
+                teacherMovieList.Sort();
+                foreach (string s in teacherMovieList)
+                {
+                    ListViewItem item = new ListViewItem(s);
+                    item.Tag = s;
+                    AddItem(item, this.listView2);
+
+                }
+
+                openFile(teacherMovieList[0]);
+            }
+            
+            viewerList = new List<ViewItem>();
+            Dictionary<string, List<string>> dic = new Dictionary<string, List<string>>();
+            for (int i = 0; i < studentMovieList.Count; i++)
+            {
+                string[] arrayResult = studentMovieList[i].Split('@');
+                if (arrayResult != null && arrayResult.Length > 1)
+                {
+                    string key = arrayResult[1];
+
+                    try
+                    {
+                        dic[key].Add(studentMovieList[i]);
+                    }
+                    catch (Exception e)
+                    {
+                        dic[key] = new List<string>();
+                        dic[key].Add(studentMovieList[i]);
+                    }
+                }
+            }
+
+            int index = 0;
+            foreach (string key in dic.Keys)
+            {
+                if (index == 0)
+                    addViewer(index, dic[key]);
+                else
+                    addViewer(index * viewerList[0].Width, dic[key]);
+                index++;
+            }
+        }
+
+        private void lstAddress_MouseDoubleClick(object sender, EventArgs e)
+        {
+            if (listView2.SelectedItems.Count == 1)
+            {
+                ListView.SelectedListViewItemCollection items = listView2.SelectedItems;
+                ListViewItem lvItem = items[0];
+                openFile(items[0].Tag.ToString());
+                axWindowsMediaPlayer1.Ctlcontrols.play();
+                Console.WriteLine("in");
+            }
+        }
+
+        void openFile(string path)
+        {
+            //this.path = path;
+            String name = Path.GetFileName(Path.GetFileName(path));
+            //this.txtTitle.Text = openFileDialog.FileName;
+            label5.Text = name;
+
+            axWindowsMediaPlayer1.URL = path;
+            axWindowsMediaPlayer1.settings.volume = 100;
+            axWindowsMediaPlayer1.Ctlcontrols.stop();
+        }
     }
 
 }
